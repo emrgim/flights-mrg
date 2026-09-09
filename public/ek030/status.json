@@ -2,8 +2,10 @@
   "airlineCode": "EK",
   "flightNumber": "030",
   "airlineName": "Emirates",
-  "status": "Cancelled",
-  "statusDetail": "",
+  "flightId": 1407221493,
+  "status": "Scheduled",
+  "statusDetail": "On time",
+  "statusCode": "S",
   "date": "2026-09-09",
   "departure": {
     "city": "London",
@@ -35,7 +37,7 @@
   },
   "tracking": {
     "available": false,
-    "message": "Positional tracking not available yet. Tracking will begin after departure."
+    "message": "Tracking will begin after departure"
   },
   "codeshares": [
     {
@@ -49,8 +51,113 @@
   ],
   "aircraft": {
     "code": "388",
-    "description": "Airbus A380-800 Passenger"
+    "description": "Airbus A380-800 Passenger",
+    "duration": "7h 5m"
   },
+  "otherDays": [
+    {
+      "label": "06-Sep",
+      "day": "Sunday",
+      "year": "2026",
+      "flights": [
+        {
+          "dep": "16:50",
+          "depTz": "BST",
+          "arr": "02:55",
+          "arrTz": "+04",
+          "from": "LHR",
+          "to": "DXB",
+          "url": "https://www.flightstats.com/v2/flight-tracker/EK/30?year=2026&month=09&date=06&flightId=1406650955"
+        }
+      ]
+    },
+    {
+      "label": "07-Sep",
+      "day": "Monday",
+      "year": "2026",
+      "flights": [
+        {
+          "dep": "16:50",
+          "depTz": "BST",
+          "arr": "02:55",
+          "arrTz": "+04",
+          "from": "LHR",
+          "to": "DXB",
+          "url": "https://www.flightstats.com/v2/flight-tracker/EK/30?year=2026&month=09&date=07&flightId=1406842703"
+        }
+      ]
+    },
+    {
+      "label": "08-Sep",
+      "day": "Tuesday",
+      "year": "2026",
+      "flights": [
+        {
+          "dep": "16:50",
+          "depTz": "BST",
+          "arr": "02:55",
+          "arrTz": "+04",
+          "from": "LHR",
+          "to": "DXB",
+          "url": "https://www.flightstats.com/v2/flight-tracker/EK/30?year=2026&month=09&date=08&flightId=1407039745"
+        }
+      ]
+    },
+    {
+      "label": "09-Sep",
+      "day": "Wednesday",
+      "year": "2026",
+      "flights": [
+        {
+          "dep": "16:50",
+          "depTz": "BST",
+          "arr": "02:55",
+          "arrTz": "+04",
+          "from": "LHR",
+          "to": "DXB",
+          "url": "https://www.flightstats.com/v2/flight-tracker/EK/30?year=2026&month=09&date=09&flightId=1407221493"
+        }
+      ]
+    },
+    {
+      "label": "10-Sep",
+      "day": "Thursday",
+      "year": "2026",
+      "flights": [
+        {
+          "dep": "16:50",
+          "depTz": "BST",
+          "arr": "02:55",
+          "arrTz": "+04",
+          "from": "LHR",
+          "to": "DXB",
+          "url": "https://www.flightstats.com/v2/flight-tracker/EK/30?year=2026&month=09&date=10&flightId=1407403322"
+        }
+      ]
+    },
+    {
+      "label": "11-Sep",
+      "day": "Friday",
+      "year": "2026",
+      "flights": [
+        {
+          "dep": "16:50",
+          "depTz": "BST",
+          "arr": "02:55",
+          "arrTz": "+04",
+          "from": "LHR",
+          "to": "DXB",
+          "url": "https://www.flightstats.com/v2/flight-tracker/EK/30?year=2026&month=09&date=11&flightId=1407601653"
+        }
+      ]
+    },
+    {
+      "label": "12-Sep",
+      "day": "Saturday",
+      "year": "2026",
+      "flights": []
+    }
+  ],
   "caution": "Heathrow recovering from NATS ATC issue; knock-on disruption possible. Confirm with Emirates before going to the airport. Press lists EK030 among delayed services — treat on-time cautiously.",
   "news": [
     {
@@ -66,7 +173,7 @@
       "summary": "EK030 from Heathrow listed among Emirates services running behind schedule."
     }
   ],
-  "updatedAt": "2026-09-09T08:51:44.952Z",
+  "updatedAt": "2026-09-09T08:52:46.466Z",
   "sources": [
     {
       "name": "FlightStats",

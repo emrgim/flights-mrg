@@ -174,3 +174,20 @@ html, body {
 }
 .foot a { color: var(--muted); }
 .muted { color: var(--muted); }
+
+.tabs { display:flex; gap:0.35rem; overflow-x:auto; -webkit-overflow-scrolling:touch; margin-bottom:0.75rem; }
+.tab {
+  flex:0 0 auto; border:1px solid var(--line); background:transparent; color:var(--muted);
+  border-radius:999px; padding:0.4rem 0.75rem; font-size:0.85rem;
+}
+.tab[aria-selected="true"] { color:var(--fg); border-color:#525252; }
+.day-panel { font-size:0.95rem; }
+.day-title { margin:0 0 0.65rem; color:var(--muted); font-size:0.85rem; }
+.day-row {
+  display:grid; grid-template-columns:1fr auto 1fr; gap:0.5rem; align-items:center;
+  padding:0.65rem 0; border-top:1px solid var(--line);
+}
+.day-row:first-of-type { border-top:0; }
+.day-time { font-weight:650; font-variant-numeric:tabular-nums; }
+.day-air { color:var(--muted); font-size:0.85rem; }
+.day-empty { color:var(--muted); }

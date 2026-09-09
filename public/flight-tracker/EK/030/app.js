@@ -71,6 +71,50 @@
     const ac = d.aircraft || {};
     $("aircraft").textContent = [ac.code, ac.description].filter(Boolean).join(" · ") || "—";
 
+
+    // Past / upcoming days
+    const tabs = $("dayTabs");
+    const panel = $("dayPanel");
+    tabs.innerHTML = "";
+    panel.innerHTML = "";
+    const days = d.otherDays || [];
+    let selected = days.findIndex((x) => (x.flights || []).length && (d.date && (x.label || "").startsWith(d.date.slice(8,10) === undefined ? "" : "")));
+    // Prefer today's label match, else first with flights, else 0
+    selected = Math.max(0, days.findIndex((x) => x.label && d.departure?.dateLabel && d.departure.dateLabel.startsWith(x.label.slice(0,6))));
+    if (selected < 0) selected = Math.max(0, days.findIndex((x) => (x.flights || []).length));
+    if (selected < 0) selected = 0;
+
+    function showDay(idx) {
+      [...tabs.querySelectorAll(".tab")].forEach((b, i) => b.setAttribute("aria-selected", i === idx ? "true" : "false"));
+      const day = days[idx];
+      if (!day) { panel.innerHTML = '<p class="day-empty">No schedule data.</p>'; return; }
+      const title = `Flights for ${day.day || ""}${day.year ? ", " + (day.label || "") + "-" + day.year : ""}`.replace(/,\s*-/, ",");
+      let html = `<p class="day-title">${day.day ? "Flights for " + day.day + ", " + day.label + "-" + day.year : day.label}</p>`;
+      const flights = day.flights || [];
+      if (!flights.length) {
+        html += '<p class="day-empty">No flight information available for this date.</p>';
+      } else {
+        for (const f of flights) {
+          html += `<div class="day-row">
+            <div><div class="day-time">${f.dep || "—"} ${f.depTz || ""}</div><div class="day-air">${f.from || ""}</div></div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div style="text-align:right"><div class="day-time">${f.arr || "—"} ${f.arrTz || ""}</div><div class="day-air">${f.to || ""}</div></div>
+          </div>`;
+        }
+      }
+      panel.innerHTML = html;
+    }
+
+    days.forEach((day, idx) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "tab";
+      b.textContent = day.label || ("Day " + (idx + 1));
+      b.addEventListener("click", () => showDay(idx));
+      tabs.appendChild(b);
+    });
+    if (days.length) showDay(selected);
+
     const news = $("news");
     news.innerHTML = "";
     const items = d.news || [];

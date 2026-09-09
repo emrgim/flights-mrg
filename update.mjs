@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { writeFile, readFile, mkdir } from "node:fs/promises";
+import { writeFile, mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -10,95 +10,72 @@ const out = join(outDir, "status.json");
 async function fetchText(url) {
   const res = await fetch(url, {
     headers: {
-      "user-agent": "Mozilla/5.0 (compatible; FlynnFlightWatch/1.0)",
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
       accept: "text/html,application/json",
     },
-    signal: AbortSignal.timeout(20000),
+    signal: AbortSignal.timeout(25000),
   });
   if (!res.ok) throw new Error(`${url} → ${res.status}`);
   return res.text();
 }
 
-function pick(re, text) {
-  const m = text.match(re);
-  return m ? m[1].trim() : null;
+function parseNextData(html) {
+  const m = html.match(/__NEXT_DATA__\s*=\s*(\{[\s\S]*?\});?\s*(?:__NEXT_LOADED_PAGES__|<)/);
+  if (!m) throw new Error("No __NEXT_DATA__");
+  return JSON.parse(m[1]);
+}
+
+function fmtDateLabel(isoLocal) {
+  if (!isoLocal) return null;
+  const d = new Date(isoLocal);
+  if (Number.isNaN(d.getTime())) return null;
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const dd = String(d.getUTCDate()).padStart(2, "0");
+  // FlightStats date labels are local calendar dates already in the string
+  const m = isoLocal.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return null;
+  const mon = months[Number(m[2]) - 1];
+  return `${m[3]}-${mon}-${m[1]}`;
 }
 
 async function main() {
   await mkdir(outDir, { recursive: true });
-  let prev = {};
-  try { prev = JSON.parse(await readFile(out, "utf8")); } catch {}
-
-  let status = prev.status || "Status unavailable";
-  let statusDetail = prev.statusDetail || "";
-  let caution = null;
-  let departure = prev.departure || {
-    city: "London", region: "EN, GB", airportName: "London Heathrow Airport", airport: "LHR",
-    timezoneLabel: "BST", timezone: "Europe/London", terminal: "3", gate: null,
-  };
-  let arrival = prev.arrival || {
-    city: "Dubai", region: "AE", airportName: "Dubai International Airport", airport: "DXB",
-    timezoneLabel: "+04", timezone: "Asia/Dubai", terminal: "3", gate: null,
-  };
   const news = [];
   const sources = [];
+  let caution = null;
 
-  try {
-    const html = await fetchText("https://www.flightstats.com/v2/flight-tracker/EK/030");
-    sources.push({ name: "FlightStats", url: "https://www.flightstats.com/v2/flight-tracker/EK/030" });
-    // Prefer the Flight Status panel; avoid matching other flights mentioned on the page
-    const panel = pick(/Flight Status([\s\S]{0,1200}?)Flight Departure Times/i, html) || html.slice(0, 4000);
-    if (/\bCancelled\b/i.test(panel) && !/On time/i.test(panel)) { status = "Cancelled"; statusDetail = ""; }
-    else if (/\bDiverted\b/i.test(panel)) { status = "Diverted"; statusDetail = ""; }
-    else if (/\b(?:Landed|Arrived)\b/i.test(panel)) { status = "Landed"; statusDetail = ""; }
-    else if (/Delayed by\s+([^\n<]+)/i.test(panel)) { status = "Delayed"; statusDetail = pick(/Delayed by\s+([^\n<]+)/i, panel) || "Delayed"; }
-    else if (/\bDelayed\b/i.test(panel) && !/On time/i.test(panel)) { status = "Delayed"; statusDetail = "Delayed"; }
-    else if (/On time/i.test(panel)) { status = "Scheduled"; statusDetail = "On time"; }
-    else if (/\bScheduled\b/i.test(panel)) { status = "Scheduled"; statusDetail = statusDetail || ""; }
+  const html = await fetchText("https://www.flightstats.com/v2/flight-tracker/EK/030");
+  sources.push({ name: "FlightStats", url: "https://www.flightstats.com/v2/flight-tracker/EK/030" });
+  const next = parseNextData(html);
+  const flight = next?.props?.initialState?.flightTracker?.flight;
+  if (!flight) throw new Error("No flight object in FlightStats payload");
 
-    const depT = pick(/Flight Departure Times[\s\S]{0,200}?Estimated[\s\S]{0,40}?(\d{2}:\d{2})\s*BST/i, html)
-      || pick(/Scheduled[\s\S]{0,40}?(\d{2}:\d{2})\s*BST/i, html);
-    const depS = pick(/Flight Departure Times[\s\S]{0,120}?Scheduled[\s\S]{0,40}?(\d{2}:\d{2})\s*BST/i, html) || depT;
-    const arrT = pick(/Flight Arrival Times[\s\S]{0,200}?Estimated[\s\S]{0,40}?(\d{2}:\d{2})\s*\+04/i, html)
-      || pick(/Scheduled[\s\S]{0,40}?(\d{2}:\d{2})\s*\+04/i, html);
-    const arrS = pick(/Flight Arrival Times[\s\S]{0,120}?Scheduled[\s\S]{0,40}?(\d{2}:\d{2})\s*\+04/i, html) || arrT;
-    const depDate = pick(/Flight Departure Times[\s\S]{0,80}?(\d{2}-[A-Za-z]{3}-\d{4})/i, html);
-    const arrDate = pick(/Flight Arrival Times[\s\S]{0,80}?(\d{2}-[A-Za-z]{3}-\d{4})/i, html);
-
-    departure = {
-      ...departure,
-      scheduled: depS || departure.scheduled,
-      estimated: depT || departure.estimated,
-      dateLabel: depDate || departure.dateLabel,
-      timezoneLabel: "BST",
-    };
-    arrival = {
-      ...arrival,
-      scheduled: arrS || arrival.scheduled,
-      estimated: arrT || arrival.estimated,
-      dateLabel: arrDate || arrival.dateLabel,
-      timezoneLabel: "+04",
-    };
-  } catch (e) {
-    statusDetail = (statusDetail ? statusDetail + " · " : "") + "FlightStats fetch failed";
-  }
+  const dep = flight.departureAirport || {};
+  const arr = flight.arrivalAirport || {};
+  const st = flight.status || {};
+  const note = flight.flightNote || {};
+  const otherDays = next?.props?.initialState?.flightTracker?.otherDays || [];
 
   try {
     const h = await fetchText("https://www.heathrow.com/departures/terminal-3/flight-details/EK030");
     sources.push({ name: "Heathrow", url: "https://www.heathrow.com/departures/terminal-3/flight-details/EK030" });
     if (/NATS|knock-on disruption|technical issue/i.test(h)) {
-      caution = "Heathrow recovering from NATS ATC issue; knock-on disruption possible. Confirm with Emirates before going to the airport.";
+      caution =
+        "Heathrow recovering from NATS ATC issue; knock-on disruption possible. Confirm with Emirates before going to the airport.";
       news.push({
         title: "NATS air traffic control technical issue — Heathrow",
         url: "https://www.heathrow.com/departures/terminal-3/flight-details/EK030",
         source: "Heathrow Airport",
-        summary: "Operations recovering; some knock-on disruption expected as airlines reposition aircraft and crew.",
+        summary:
+          "Operations recovering; some knock-on disruption expected as airlines reposition aircraft and crew.",
       });
     }
   } catch {}
 
   try {
-    const nUrl = "https://www.thenationalnews.com/travel/2026/09/09/dubai-abu-dhabi-flight-delays-cancellations/";
+    const nUrl =
+      "https://www.thenationalnews.com/travel/2026/09/09/dubai-abu-dhabi-flight-delays-cancellations/";
     const n = await fetchText(nUrl);
     sources.push({ name: "The National", url: nUrl });
     if (/EK030/i.test(n)) {
@@ -108,28 +85,80 @@ async function main() {
         source: "The National",
         summary: "EK030 from Heathrow listed among Emirates services running behind schedule.",
       });
-      caution = (caution ? caution + " " : "") + "Press lists EK030 among delayed services — treat on-time cautiously.";
+      caution =
+        (caution ? caution + " " : "") +
+        "Press lists EK030 among delayed services — treat on-time cautiously.";
     }
   } catch {}
 
   const payload = {
-    airlineCode: "EK",
-    flightNumber: "030",
-    airlineName: "Emirates",
-    status,
-    statusDetail,
-    date: new Date().toISOString().slice(0, 10),
-    departure,
-    arrival,
-    tracking: {
-      available: false,
-      message: "Positional tracking not available yet. Tracking will begin after departure.",
+    airlineCode: flight.ticketHeader?.carrier?.fs || "EK",
+    flightNumber: String(flight.ticketHeader?.flightNumber || "30").padStart(3, "0"),
+    airlineName: flight.ticketHeader?.carrier?.name || "Emirates",
+    flightId: flight.flightId,
+    status: note.canceled ? "Cancelled" : st.status || "Status unavailable",
+    statusDetail: st.statusDescription || st.delayStatus?.wording || "",
+    statusCode: st.statusCode || null,
+    date: (dep.date || "").slice(0, 10),
+    departure: {
+      city: dep.city || "London",
+      region: [dep.state, dep.country].filter(Boolean).join(", "),
+      airportName: dep.name || "London Heathrow Airport",
+      airport: dep.fs || "LHR",
+      dateLabel: fmtDateLabel(dep.date) || "09-Sep-2026",
+      scheduled: dep.times?.scheduled?.time24 || null,
+      estimated: dep.times?.estimatedActual?.time24 || null,
+      actual: dep.times?.estimatedActual?.title === "Actual" ? dep.times?.estimatedActual?.time24 : null,
+      timezoneLabel: dep.times?.scheduled?.timezone || "BST",
+      timezone: dep.timeZoneRegionName || "Europe/London",
+      terminal: dep.terminal || null,
+      gate: dep.gate || null,
     },
-    codeshares: [
-      { airline: "Icelandair", flight: "FI 6036" },
-      { airline: "Qantas", flight: "QF 8030" },
-    ],
-    aircraft: { code: "388", description: "Airbus A380-800 Passenger" },
+    arrival: {
+      city: arr.city || "Dubai",
+      region: [arr.state, arr.country].filter(Boolean).join(", ") || arr.country || "AE",
+      airportName: arr.name || "Dubai International Airport",
+      airport: arr.fs || "DXB",
+      dateLabel: fmtDateLabel(arr.date) || null,
+      scheduled: arr.times?.scheduled?.time24 || null,
+      estimated: arr.times?.estimatedActual?.time24 || null,
+      actual: arr.times?.estimatedActual?.title === "Actual" ? arr.times?.estimatedActual?.time24 : null,
+      timezoneLabel: arr.times?.scheduled?.timezone || "+04",
+      timezone: arr.timeZoneRegionName || "Asia/Dubai",
+      terminal: arr.terminal || null,
+      gate: arr.gate || null,
+    },
+    tracking: {
+      available: Boolean(flight.isTracking),
+      message:
+        note.message ||
+        (flight.isTracking
+          ? "Live tracking active"
+          : "Positional tracking not available yet. Tracking will begin after departure."),
+    },
+    codeshares: (flight.codeshares || []).map((c) => ({
+      airline: c.name,
+      flight: `${c.fs} ${c.flightNumber}`,
+    })),
+    aircraft: {
+      code: flight.additionalFlightInfo?.equipment?.iata || null,
+      description: flight.additionalFlightInfo?.equipment?.name || null,
+      duration: flight.additionalFlightInfo?.flightDuration || null,
+    },
+    otherDays: otherDays.map((d) => ({
+      label: d.date1,
+      day: d.day,
+      year: d.year,
+      flights: (d.flights || []).map((f) => ({
+        dep: f.departureTime24,
+        depTz: f.departureTimezone,
+        arr: f.arrivalTime24,
+        arrTz: f.arrivalTimezone,
+        from: f.departureAirport?.fs,
+        to: f.arrivalAirport?.fs,
+        url: f.url ? `https://www.flightstats.com/v2${f.url}` : null,
+      })),
+    })),
     caution,
     news,
     updatedAt: new Date().toISOString(),
@@ -137,10 +166,12 @@ async function main() {
   };
 
   await writeFile(out, JSON.stringify(payload, null, 2));
-  // keep legacy ek030 status in sync for old bookmarks during redirect era
   await mkdir(join(root, "public/ek030"), { recursive: true });
   await writeFile(join(root, "public/ek030/status.json"), JSON.stringify(payload, null, 2));
-  console.log("Wrote", out, status, statusDetail);
+  console.log("OK", payload.status, payload.statusDetail, payload.departure.scheduled, "→", payload.arrival.scheduled);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
