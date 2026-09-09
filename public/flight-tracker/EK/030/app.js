@@ -1,79 +1,105 @@
 (function () {
   const STATUS_URL = "./status.json";
   const REFRESH_MS = 60000;
-  const ROTATE_MS = 5500;
   const $ = (id) => document.getElementById(id);
+
   let depNewsItems = [];
   let depNewsIndex = 0;
-  let depNewsTimer = null;
+  let expanded = false;
 
   function departureNews(d) {
     const airport = (d.departure?.airport || "LHR").toUpperCase();
-    const keys = {
-      LHR: [/heathrow/i, /\bLHR\b/i, /NATS/i, /London.*airport/i, /UK air/i],
-      DXB: [/dubai/i, /\bDXB\b/i],
-    };
-    const matchers = keys[airport] || [/./];
-    const news = Array.isArray(d.news) ? d.news : [];
+    const news = Array.isArray(d.news) ? d.news.slice() : [];
     const tagged = news.filter((n) => (n.airport || "").toUpperCase() === airport);
+    const matchers = [
+      /heathrow/i,
+      /\bLHR\b/i,
+      /NATS/i,
+      /London/i,
+      /UK air/i,
+      /air traffic/i,
+    ];
     const scored = news.filter((n) => {
       const blob = `${n.title || ""} ${n.summary || ""} ${n.source || ""}`;
       return matchers.some((re) => re.test(blob));
     });
-    const list = tagged.length ? tagged : scored.length ? scored : news;
+    const list = (tagged.length ? tagged : scored.length ? scored : news).filter(
+      (n) => n && (n.title || n.summary)
+    );
     return { airport, list };
   }
 
-  function paintDepNews(i) {
+  function tickerText() {
+    if (!depNewsItems.length) return "No departure-airport headlines right now.";
+    return depNewsItems
+      .map((n) => `${n.source ? n.source + ": " : ""}${n.title || "Untitled"}`)
+      .join("   ·   ");
+  }
+
+  function paintTicker() {
+    const text = tickerText();
+    $("tickerItemA").textContent = text;
+    $("tickerItemB").textContent = text;
+  }
+
+  function paintExpanded() {
     if (!depNewsItems.length) {
-      $("depNewsSource").textContent = "—";
-      $("depNewsTitle").textContent = "No departure-airport headlines right now.";
-      $("depNewsSlide").removeAttribute("href");
-      $("depNewsDots").innerHTML = "";
+      $("newsExpandSource").textContent = "—";
+      $("newsExpandTitle").textContent = "No news";
+      $("newsExpandBody").textContent = "No departure-airport headlines in the latest update.";
+      $("newsOpen").hidden = true;
       return;
     }
-    const n = depNewsItems[i % depNewsItems.length];
-    const slide = $("depNewsSlide");
-    slide.classList.add("is-fading");
-    slide.classList.remove("is-shown");
-    setTimeout(() => {
-      $("depNewsSource").textContent = n.source || "News";
-      $("depNewsTitle").textContent = n.title || "Untitled";
-      if (n.url) {
-        slide.href = n.url;
-      } else {
-        slide.removeAttribute("href");
-      }
-      [...$("depNewsDots").children].forEach((dot, di) => {
-        dot.setAttribute("aria-current", di === i % depNewsItems.length ? "true" : "false");
-      });
-      slide.classList.remove("is-fading");
-      slide.classList.add("is-shown");
-    }, 180);
-  }
-
-  function startDepNewsRotation(d) {
-    const { airport, list } = departureNews(d);
-    $("depNewsAirport").textContent = airport;
-    depNewsItems = list.slice(0, 8);
-    depNewsIndex = 0;
-    const dots = $("depNewsDots");
-    dots.innerHTML = "";
-    depNewsItems.forEach((_, i) => {
-      const s = document.createElement("span");
-      if (i === 0) s.setAttribute("aria-current", "true");
-      dots.appendChild(s);
-    });
-    paintDepNews(0);
-    if (depNewsTimer) clearInterval(depNewsTimer);
-    if (depNewsItems.length > 1) {
-      depNewsTimer = setInterval(() => {
-        depNewsIndex = (depNewsIndex + 1) % depNewsItems.length;
-        paintDepNews(depNewsIndex);
-      }, ROTATE_MS);
+    const n = depNewsItems[depNewsIndex % depNewsItems.length];
+    $("newsExpandSource").textContent = n.source || "News";
+    $("newsExpandTitle").textContent = n.title || "Untitled";
+    $("newsExpandBody").textContent =
+      n.summary || n.body || "No article body in feed — open the source for the full story.";
+    if (n.url) {
+      $("newsOpen").hidden = false;
+      $("newsOpen").href = n.url;
+    } else {
+      $("newsOpen").hidden = true;
     }
   }
 
+  function setExpanded(on) {
+    expanded = on;
+    const card = $("newsTickerCard");
+    card.classList.toggle("is-expanded", on);
+    $("newsTickerToggle").setAttribute("aria-expanded", on ? "true" : "false");
+    $("newsExpand").hidden = !on;
+    $("newsTickerHint").textContent = on ? "Tap header to collapse" : "Tap to expand";
+    if (on) paintExpanded();
+  }
+
+  function wireNewsControls(once) {
+    if (once._wired) return;
+    once._wired = true;
+    $("newsTickerToggle").addEventListener("click", () => setExpanded(!expanded));
+    $("newsPrev").addEventListener("click", (e) => {
+      e.preventDefault();
+      if (!depNewsItems.length) return;
+      depNewsIndex = (depNewsIndex - 1 + depNewsItems.length) % depNewsItems.length;
+      paintExpanded();
+    });
+    $("newsNext").addEventListener("click", (e) => {
+      e.preventDefault();
+      if (!depNewsItems.length) return;
+      depNewsIndex = (depNewsIndex + 1) % depNewsItems.length;
+      paintExpanded();
+    });
+  }
+
+  function startDepNews(d) {
+    const { airport, list } = departureNews(d);
+    $("depNewsAirport").textContent = airport;
+    depNewsItems = list.slice(0, 12);
+    if (depNewsIndex >= depNewsItems.length) depNewsIndex = 0;
+    paintTicker();
+    if (expanded) paintExpanded();
+    wireNewsControls(startDepNews);
+  }
 
   function timeWithTz(t, tzLabel) {
     if (!t) return "—";
@@ -99,7 +125,7 @@
       $("caution").hidden = true;
     }
 
-    startDepNewsRotation(d);
+    startDepNews(d);
 
     const dep = d.departure || {};
     const arr = d.arrival || {};
@@ -124,9 +150,7 @@
     const tr = d.tracking || {};
     $("trackerMsg").textContent =
       tr.message ||
-      (tr.available
-        ? "Live tracking active"
-        : "Tracking will begin after departure");
+      (tr.available ? "Live tracking active" : "Tracking will begin after departure");
 
     const cs = $("codeshares");
     cs.innerHTML = "";
@@ -143,27 +167,35 @@
     }
 
     const ac = d.aircraft || {};
-    $("aircraft").textContent = [ac.code, ac.description].filter(Boolean).join(" · ") || "—";
+    $("aircraft").textContent =
+      [ac.code, ac.description].filter(Boolean).join(" · ") || "—";
 
-
-    // Past / upcoming days
     const tabs = $("dayTabs");
     const panel = $("dayPanel");
     tabs.innerHTML = "";
     panel.innerHTML = "";
     const days = d.otherDays || [];
-    let selected = days.findIndex((x) => (x.flights || []).length && (d.date && (x.label || "").startsWith(d.date.slice(8,10) === undefined ? "" : "")));
-    // Prefer today's label match, else first with flights, else 0
-    selected = Math.max(0, days.findIndex((x) => x.label && d.departure?.dateLabel && d.departure.dateLabel.startsWith(x.label.slice(0,6))));
+    let selected = days.findIndex(
+      (x) =>
+        x.label &&
+        d.departure?.dateLabel &&
+        d.departure.dateLabel.startsWith(x.label.slice(0, 6))
+    );
     if (selected < 0) selected = Math.max(0, days.findIndex((x) => (x.flights || []).length));
     if (selected < 0) selected = 0;
 
     function showDay(idx) {
-      [...tabs.querySelectorAll(".tab")].forEach((b, i) => b.setAttribute("aria-selected", i === idx ? "true" : "false"));
+      [...tabs.querySelectorAll(".tab")].forEach((b, i) =>
+        b.setAttribute("aria-selected", i === idx ? "true" : "false")
+      );
       const day = days[idx];
-      if (!day) { panel.innerHTML = '<p class="day-empty">No schedule data.</p>'; return; }
-      const title = `Flights for ${day.day || ""}${day.year ? ", " + (day.label || "") + "-" + day.year : ""}`.replace(/,\s*-/, ",");
-      let html = `<p class="day-title">${day.day ? "Flights for " + day.day + ", " + day.label + "-" + day.year : day.label}</p>`;
+      if (!day) {
+        panel.innerHTML = '<p class="day-empty">No schedule data.</p>';
+        return;
+      }
+      let html = `<p class="day-title">${
+        day.day ? "Flights for " + day.day + ", " + day.label + "-" + day.year : day.label
+      }</p>`;
       const flights = day.flights || [];
       if (!flights.length) {
         html += '<p class="day-empty">No flight information available for this date.</p>';
@@ -183,42 +215,11 @@
       const b = document.createElement("button");
       b.type = "button";
       b.className = "tab";
-      b.textContent = day.label || ("Day " + (idx + 1));
+      b.textContent = day.label || "Day " + (idx + 1);
       b.addEventListener("click", () => showDay(idx));
       tabs.appendChild(b);
     });
     if (days.length) showDay(selected);
-
-    const news = $("news");
-    news.innerHTML = "";
-    const items = d.news || [];
-    if (!items.length) {
-      const li = document.createElement("li");
-      li.className = "muted";
-      li.textContent = "No recent airport traffic headlines.";
-      news.appendChild(li);
-    } else {
-      items.forEach((n) => {
-        const li = document.createElement("li");
-        const a = document.createElement("a");
-        a.href = n.url || "#";
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        a.textContent = n.title || "Untitled";
-        li.appendChild(a);
-        const src = document.createElement("span");
-        src.className = "news-src";
-        src.textContent = n.source || "";
-        li.appendChild(src);
-        if (n.summary) {
-          const p = document.createElement("p");
-          p.className = "news-sum";
-          p.textContent = n.summary;
-          li.appendChild(p);
-        }
-        news.appendChild(li);
-      });
-    }
 
     try {
       $("updated").textContent =
@@ -241,7 +242,6 @@
           : s.name
       );
     $("sources").innerHTML = sources.length ? "Sources: " + sources.join(" · ") : "";
-
     document.title = `${code}${padded} · ${d.airlineName || "Emirates"} Flight Tracker`;
   }
 
@@ -257,8 +257,18 @@
         airlineName: "Emirates",
         status: "Status unavailable",
         statusDetail: String(e.message || e),
-        departure: { city: "London", region: "EN, GB", airportName: "London Heathrow Airport" },
-        arrival: { city: "Dubai", region: "AE", airportName: "Dubai International Airport" },
+        departure: {
+          city: "London",
+          region: "EN, GB",
+          airport: "LHR",
+          airportName: "London Heathrow Airport",
+        },
+        arrival: {
+          city: "Dubai",
+          region: "AE",
+          airport: "DXB",
+          airportName: "Dubai International Airport",
+        },
         tracking: { available: false, message: "Live feed offline" },
         codeshares: [],
         aircraft: {},

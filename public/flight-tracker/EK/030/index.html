@@ -3,31 +3,49 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#000000" />
+  <meta name="theme-color" content="#ffffff" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>EK030 · Emirates Flight Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <main class="page">
     <header class="hero">
-      <p class="eyebrow">Flight tracker</p>
+      <p class="eyebrow">flights.mrg.im</p>
       <h1 id="title">(EK) Emirates 30</h1>
       <p class="subtitle" id="subtitle">Flight Tracker</p>
     </header>
 
-
-    <section class="panel news-rotator" aria-labelledby="dep-news-heading" aria-live="polite">
-      <div class="news-rotator-top">
-        <h2 id="dep-news-heading" class="panel-title">Departure airport news</h2>
-        <span class="news-rotator-tag" id="depNewsAirport">LHR</span>
-      </div>
-      <div class="news-rotator-body">
-        <a class="news-rotator-slide" id="depNewsSlide" href="#" target="_blank" rel="noopener noreferrer">
-          <span class="news-rotator-source" id="depNewsSource">—</span>
-          <span class="news-rotator-title" id="depNewsTitle">Loading…</span>
-        </a>
-        <div class="news-rotator-dots" id="depNewsDots" aria-hidden="true"></div>
+    <section
+      class="panel news-ticker"
+      id="newsTickerCard"
+      aria-labelledby="dep-news-heading"
+    >
+      <button type="button" class="news-ticker-hit" id="newsTickerToggle" aria-expanded="false">
+        <div class="news-ticker-top">
+          <h2 id="dep-news-heading" class="panel-title">Departure airport</h2>
+          <span class="news-ticker-tag" id="depNewsAirport">LHR</span>
+        </div>
+        <div class="ticker-viewport" id="tickerViewport">
+          <div class="ticker-track" id="tickerTrack" aria-live="off">
+            <span class="ticker-item" id="tickerItemA">Loading airport news…</span>
+            <span class="ticker-item" id="tickerItemB" aria-hidden="true"></span>
+          </div>
+        </div>
+        <p class="news-ticker-hint" id="newsTickerHint">Tap to expand</p>
+      </button>
+      <div class="news-expand" id="newsExpand" hidden>
+        <p class="news-expand-source" id="newsExpandSource"></p>
+        <h3 class="news-expand-title" id="newsExpandTitle"></h3>
+        <p class="news-expand-body" id="newsExpandBody"></p>
+        <div class="news-expand-actions">
+          <button type="button" class="btn" id="newsPrev">Prev</button>
+          <button type="button" class="btn" id="newsNext">Next</button>
+          <a class="btn btn-link" id="newsOpen" href="#" target="_blank" rel="noopener noreferrer">Open source</a>
+        </div>
       </div>
     </section>
 
@@ -109,14 +127,9 @@
       <div id="dayPanel" class="day-panel"></div>
     </section>
 
-    <section class="panel" aria-labelledby="news-heading">
-      <h2 id="news-heading" class="panel-title">Airport traffic &amp; news</h2>
-      <ul class="news" id="news"></ul>
-    </section>
-
     <footer class="foot">
       <p id="updated">Updated —</p>
-      <p class="muted">Schema mirrors FlightStats · not affiliated with Emirates or FlightStats</p>
+      <p class="muted">Look inspired by Bring Fast · not affiliated with Emirates or FlightStats</p>
       <p class="muted" id="sources"></p>
     </footer>
   </main>
