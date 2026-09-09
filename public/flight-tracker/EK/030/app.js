@@ -201,8 +201,8 @@
     const icon = L.divIcon({
       className: "plane-icon",
       html: planeSvg(heading),
-      iconSize: [28, 28],
-      iconAnchor: [14, 14],
+      iconSize: [48, 48],
+      iconAnchor: [24, 24],
     });
 
     if (!planeMarker) {

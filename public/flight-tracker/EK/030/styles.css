@@ -357,8 +357,8 @@ a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
   border: 0;
 }
 .plane-marker {
-  width: 28px;
-  height: 28px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -366,9 +366,9 @@ a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
 }
 .plane-marker svg {
   display: block;
-  width: 26px;
-  height: 26px;
-  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff);
+  width: 44px;
+  height: 44px;
+  filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 1.5px #fff);
 }
 .plane-label {
   font-family: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
