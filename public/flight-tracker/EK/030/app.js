@@ -167,11 +167,18 @@
     $("status").textContent = d.status || "Status unavailable";
     $("statusDetail").textContent = d.statusDetail || "";
 
+    const statusPanel = document.getElementById("status-heading")
+      ? document.getElementById("status-heading").closest(".status-panel")
+      : document.querySelector(".status-panel");
     if (d.caution) {
       $("caution").hidden = false;
       $("caution").textContent = d.caution;
+      $("emiratesContactWrap").hidden = false;
+      if (statusPanel) statusPanel.classList.add("is-alert");
     } else {
       $("caution").hidden = true;
+      $("emiratesContactWrap").hidden = true;
+      if (statusPanel) statusPanel.classList.remove("is-alert");
     }
 
     const dep = d.departure || {};
