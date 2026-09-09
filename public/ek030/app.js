@@ -994,9 +994,21 @@
     return /^EK0*30$/i.test(f) || /^EK\s*30$/i.test(f);
   }
 
+  function pinEk030First(rows) {
+    const list = Array.isArray(rows) ? rows.slice() : [];
+    const idx = list.findIndex(function (r) {
+      return isEkFlight(r && r.flight);
+    });
+    if (idx > 0) {
+      const ek = list.splice(idx, 1)[0];
+      list.unshift(ek);
+    }
+    return list;
+  }
+
   function paintBoard(board) {
     board = board || {};
-    const deps = Array.isArray(board.departures) ? board.departures : [];
+    const deps = pinEk030First(board.departures);
     const nearby = Array.isArray(board.nearby) ? board.nearby : [];
     const meta = document.getElementById("boardMeta");
     if (meta) {

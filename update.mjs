@@ -650,7 +650,7 @@ async function fetchHeathrowDepartures() {
   }
 
   // Drop internal helper fields for output
-  const departures = picked.map((r) => ({
+  let departures = picked.map((r) => ({
     flight: r.flight,
     destination: r.destination,
     scheduled: r.scheduled,
@@ -661,6 +661,12 @@ async function fetchHeathrowDepartures() {
     terminal: r.terminal,
     delayMin: r.delayMin,
   }));
+
+  const ekIdx = departures.findIndex((r) => /^EK0*30$/i.test(String(r.flight || "")));
+  if (ekIdx > 0) {
+    const [ekRow] = departures.splice(ekIdx, 1);
+    departures.unshift(ekRow);
+  }
 
   return {
     departures,
