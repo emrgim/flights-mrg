@@ -357,8 +357,17 @@ a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
   border: 0;
 }
 .plane-marker {
-  width: 48px;
-  height: 48px;
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: 50% 50%;
+  animation: plane-pulse 1.4s ease-in-out infinite;
+}
+.plane-rot {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -366,9 +375,23 @@ a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
 }
 .plane-marker svg {
   display: block;
-  width: 44px;
-  height: 44px;
-  filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 1.5px #fff);
+  width: 88px;
+  height: 88px;
+  filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 2px #fff);
+}
+@keyframes plane-pulse {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 0 transparent);
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.12);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .plane-marker { animation: none; }
 }
 .plane-label {
   font-family: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;

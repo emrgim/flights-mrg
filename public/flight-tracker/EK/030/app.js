@@ -84,15 +84,16 @@
   let lastPosKey = "";
 
   function planeSvg(heading) {
-    // B/W nose-up airplane; CSS rotates via heading
+    // Outer div pulses; inner rotates with heading (don't fight transform)
     return (
-      '<div class="plane-marker" style="transform:rotate(' +
+      '<div class="plane-marker">' +
+      '<div class="plane-rot" style="transform:rotate(' +
       (Number(heading) || 0) +
       'deg)">' +
       '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
       '<path fill="#111" stroke="#fff" stroke-width="1.2" stroke-linejoin="round" ' +
       'd="M12 2 L14.2 9.5 L21 11 L14.2 12.2 L12 22 L9.8 12.2 L3 11 L9.8 9.5 Z"/>' +
-      "</svg></div>"
+      "</svg></div></div>"
     );
   }
 
@@ -201,8 +202,8 @@
     const icon = L.divIcon({
       className: "plane-icon",
       html: planeSvg(heading),
-      iconSize: [48, 48],
-      iconAnchor: [24, 24],
+      iconSize: [96, 96],
+      iconAnchor: [48, 48],
     });
 
     if (!planeMarker) {
@@ -211,7 +212,7 @@
         planeMarker.bindTooltip(reg, {
           permanent: true,
           direction: "right",
-          offset: [14, 0],
+          offset: [28, 0],
           className: "plane-label",
         });
       }
@@ -222,7 +223,7 @@
         planeMarker.bindTooltip(reg, {
           permanent: true,
           direction: "right",
-          offset: [14, 0],
+          offset: [28, 0],
           className: "plane-label",
         });
       }
