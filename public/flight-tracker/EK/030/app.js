@@ -1,6 +1,8 @@
 (function () {
   const STATUS_URL = "./status.json";
+  const POSITION_URL = "./position.json";
   const REFRESH_MS = 45000;
+  const POSITION_MS = 20000;
   const FALLBACK_NEWS = [
     {
       title: "NATS air traffic control technical issue — Heathrow",
@@ -82,6 +84,10 @@
   let planeMarker = null;
   let routeLine = null;
   let lastPosKey = "";
+  let track = null; // { lat, lon, heading, speedKt, onGround, seenAt, source, mode }
+  let drRaf = 0;
+  let drLastTs = 0;
+  let lastFix = null; // last ADS-B fix for error check
 
   function planeSvg(heading) {
     // Outer div pulses; inner rotates with heading (don't fight transform)
@@ -160,6 +166,7 @@
 
     if (!m) {
       if (seenEl) seenEl.textContent = "Map library unavailable";
+      stopDeadReckon();
       return;
     }
 
@@ -169,6 +176,7 @@
           ? "Waiting for ADS-B / aircraft not yet transmitting"
           : "Waiting for ADS-B / aircraft not yet assigned";
       }
+      stopDeadReckon();
       if (planeMarker) {
         try {
           m.removeLayer(planeMarker);
@@ -188,16 +196,97 @@
 
     const lat = Number(pos.lat);
     const lon = Number(pos.lon);
-    const heading = Number(pos.heading) || 0;
-    const key = [lat.toFixed(4), lon.toFixed(4), heading.toFixed(0), reg || ""].join("|");
+    const heading = Number(pos.heading);
+    const speedKt = Number(pos.speed);
+    const onGround = Boolean(pos.onGround);
+
+    // Compare previous dead-reckoned point vs new ADS-B fix
+    let errNm = null;
+    if (track && Number.isFinite(track.lat) && Number.isFinite(track.lon)) {
+      errNm = haversineNm(track.lat, track.lon, lat, lon);
+    }
+
+    lastFix = {
+      lat: lat,
+      lon: lon,
+      heading: Number.isFinite(heading) ? heading : track && track.heading,
+      speedKt: Number.isFinite(speedKt) ? speedKt : track && track.speedKt,
+      altitude: pos.altitude != null ? Number(pos.altitude) : lastFix && lastFix.altitude,
+      onGround: onGround,
+      seenAt: pos.seenAt || new Date().toISOString(),
+      source: pos.source || "adsb",
+    };
+
+    track = {
+      lat: lat,
+      lon: lon,
+      heading: Number.isFinite(heading) ? heading : 0,
+      speedKt: onGround ? 0 : Number.isFinite(speedKt) ? speedKt : 0,
+      onGround: onGround,
+      seenAt: lastFix.seenAt,
+      source: lastFix.source,
+      mode: "live",
+    };
+
+    paintPlaneAt(track, reg, seenEl, errNm, true);
+    startDeadReckon(reg, seenEl);
+  }
+
+  function haversineNm(lat1, lon1, lat2, lon2) {
+    const R = 3440.065; // Earth radius in nautical miles
+    const toRad = Math.PI / 180;
+    const dLat = (lat2 - lat1) * toRad;
+    const dLon = (lon2 - lon1) * toRad;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * toRad) * Math.cos(lat2 * toRad) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(a)));
+  }
+
+  function advanceTrack(dtSec) {
+    if (!track || track.onGround || !(track.speedKt > 15) || !Number.isFinite(track.heading)) return;
+    // nm moved in dtSec
+    const nm = (track.speedKt * dtSec) / 3600;
+    const h = (track.heading * Math.PI) / 180;
+    const dNorth = nm * Math.cos(h);
+    const dEast = nm * Math.sin(h);
+    track.lat = track.lat + dNorth / 60;
+    const cosLat = Math.cos((track.lat * Math.PI) / 180) || 1e-6;
+    track.lon = track.lon + dEast / (60 * cosLat);
+    track.mode = "dr";
+  }
+
+  function paintPlaneAt(tr, reg, seenEl, errNm, recentre) {
+    const m = ensureMap();
+    if (!m || !tr) return;
+    const lat = tr.lat;
+    const lon = tr.lon;
+    const heading = Number(tr.heading) || 0;
+    const key = [lat.toFixed(5), lon.toFixed(5), heading.toFixed(0), reg || "", tr.mode || ""].join("|");
 
     const bits = [];
-    if (pos.onGround) bits.push("on ground");
-    else if (pos.altitude != null) bits.push(Math.round(pos.altitude) + " ft");
-    if (pos.speed != null) bits.push(Math.round(pos.speed) + " kt");
-    if (pos.source) bits.push(pos.source);
-    if (pos.seenAt) bits.push("seen " + fmtSeen(pos.seenAt));
+    if (tr.mode === "dr") bits.push("DR");
+    else bits.push("ADS-B");
+    if (tr.onGround) bits.push("on ground");
+    else if (lastFix && lastFix.altitude != null) {
+      /* altitude kept on lastFix only if we store it */
+    }
+    if (Number.isFinite(tr.speedKt) && tr.speedKt > 0) bits.push(Math.round(tr.speedKt) + " kt");
+    if (Number.isFinite(heading)) bits.push(Math.round(heading) + "°");
+    if (tr.source) bits.push(tr.source);
+    if (tr.seenAt) bits.push("fix " + fmtSeen(tr.seenAt));
+    if (errNm != null && Number.isFinite(errNm)) {
+      bits.push("Δ " + (errNm < 0.1 ? (errNm * 1852).toFixed(0) + " m" : errNm.toFixed(1) + " nm"));
+    }
     if (seenEl) seenEl.textContent = bits.join(" · ") || "Live position";
+
+    // Keep altitude in label from lastFix when available
+    if (seenEl && lastFix && lastFix.altitude != null && !tr.onGround) {
+      const base = seenEl.textContent;
+      if (base.indexOf(" ft") === -1) {
+        seenEl.textContent = Math.round(lastFix.altitude) + " ft · " + base;
+      }
+    }
 
     const icon = L.divIcon({
       className: "plane-icon",
@@ -219,24 +308,47 @@
     } else if (key !== lastPosKey) {
       planeMarker.setLatLng([lat, lon]);
       planeMarker.setIcon(icon);
-      if (reg) {
-        planeMarker.bindTooltip(reg, {
-          permanent: true,
-          direction: "right",
-          offset: [40, 0],
-          className: "plane-label",
-        });
-      }
     }
     lastPosKey = key;
 
-    try {
-      const z = m.getZoom();
-      if (z < 4 || z > 10) m.setView([lat, lon], 6, { animate: false });
-      else m.panTo([lat, lon], { animate: true });
-    } catch (e) {
-      m.setView([lat, lon], 6);
+    if (recentre) {
+      try {
+        const z = m.getZoom();
+        if (z < 4 || z > 10) m.setView([lat, lon], 6, { animate: false });
+        else m.panTo([lat, lon], { animate: true });
+      } catch (e) {
+        m.setView([lat, lon], 6);
+      }
     }
+  }
+
+  function stopDeadReckon() {
+    if (drRaf) {
+      cancelAnimationFrame(drRaf);
+      drRaf = 0;
+    }
+    drLastTs = 0;
+  }
+
+  function startDeadReckon(reg, seenEl) {
+    stopDeadReckon();
+    drLastTs = performance.now();
+    function tick(now) {
+      drRaf = requestAnimationFrame(tick);
+      if (!track) return;
+      const dt = Math.min(1.5, (now - drLastTs) / 1000);
+      drLastTs = now;
+      if (dt <= 0) return;
+      advanceTrack(dt);
+      // repaint ~4×/sec for smoothness without thrashing DOM
+      if (!tick._acc) tick._acc = 0;
+      tick._acc += dt;
+      if (tick._acc >= 0.25) {
+        tick._acc = 0;
+        paintPlaneAt(track, reg, seenEl || document.getElementById("mapSeen"), null, false);
+      }
+    }
+    drRaf = requestAnimationFrame(tick);
   }
 
   const $ = (id) => {
@@ -569,4 +681,30 @@
   startDepNews({ departure: { airport: "LHR" }, news: FALLBACK_NEWS });
   load();
   setInterval(load, REFRESH_MS);
+
+  async function loadPositionOnly() {
+    try {
+      const res = await fetch(POSITION_URL + "?t=" + Date.now(), { cache: "no-store" });
+      if (!res.ok) return;
+      const p = await res.json();
+      if (!p || !Number.isFinite(Number(p.lat))) return;
+      updateMap({
+        aircraft: {
+          registration: p.registration,
+          icao24: p.icao24,
+          position: {
+            lat: p.lat,
+            lon: p.lon,
+            altitude: p.altitude,
+            heading: p.heading,
+            speed: p.speed,
+            seenAt: p.seenAt,
+            onGround: p.onGround,
+            source: p.source,
+          },
+        },
+      });
+    } catch (e) {}
+  }
+  setInterval(loadPositionOnly, POSITION_MS);
 })();
