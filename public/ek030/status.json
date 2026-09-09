@@ -4,7 +4,7 @@
   "airlineName": "Emirates",
   "flightId": 1407221493,
   "status": "Departed",
-  "statusDetail": "On time",
+  "statusDetail": "Estimated 02:36",
   "statusCode": "A",
   "date": "2026-09-09",
   "departure": {
@@ -14,8 +14,8 @@
     "airport": "LHR",
     "dateLabel": "09-Sep-2026",
     "scheduled": "16:50",
-    "estimated": "17:13",
-    "actual": "17:13",
+    "estimated": "17:15",
+    "actual": "17:15",
     "timezoneLabel": "BST",
     "timezone": "Europe/London",
     "terminal": "3",
@@ -28,7 +28,7 @@
     "airport": "DXB",
     "dateLabel": "10-Sep-2026",
     "scheduled": "02:55",
-    "estimated": "03:04",
+    "estimated": "02:36",
     "actual": null,
     "timezoneLabel": "+04",
     "timezone": "Asia/Dubai",
@@ -51,19 +51,19 @@
   ],
   "aircraft": {
     "code": "388",
-    "description": "Airbus A380-800 Passenger",
+    "description": "Airbus A380-842",
     "duration": "7h 5m",
     "registration": "A6-EVS",
     "icao24": "89655f",
     "position": {
-      "lat": 36.084688,
-      "lon": 33.753565,
+      "lat": 33.758789,
+      "lon": 36.810533,
       "altitude": 41000,
-      "heading": 128.45,
-      "speed": 545,
-      "seenAt": "2026-09-09T19:44:37.027Z",
+      "heading": 128.74,
+      "speed": 525.7,
+      "seenAt": "2026-09-09T20:08:09.479Z",
       "onGround": false,
-      "source": "adsb.lol-callsign"
+      "source": "adsb.lol-reg"
     }
   },
   "otherDays": [
@@ -205,7 +205,7 @@
       "fetchedAt": "2026-09-09T17:48:46.188Z"
     }
   ],
-  "updatedAt": "2026-09-09T19:44:37.028Z",
+  "updatedAt": "2026-09-09T20:08:09.479Z",
   "sources": [
     {
       "name": "FlightStats",
