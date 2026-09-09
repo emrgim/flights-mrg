@@ -28,7 +28,7 @@
     "airport": "DXB",
     "dateLabel": "10-Sep-2026",
     "scheduled": "02:55",
-    "estimated": "02:55",
+    "estimated": "02:41",
     "actual": null,
     "timezoneLabel": "+04",
     "timezone": "Asia/Dubai",
@@ -175,7 +175,7 @@
       "summary": "EK030 from Heathrow listed among Emirates services running behind schedule."
     }
   ],
-  "updatedAt": "2026-09-09T11:10:51.317Z",
+  "updatedAt": "2026-09-09T11:49:50.432Z",
   "sources": [
     {
       "name": "FlightStats",
