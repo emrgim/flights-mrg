@@ -1,11 +1,14 @@
 :root {
   color-scheme: light;
-  --bg: #ffffff;
-  --fg: #000000;
-  --muted: #737373;
-  --line: #e5e5e5;
-  --card: #ffffff;
-  --soft: #f5f5f5;
+  --bg: #fff;
+  --fg: #111;
+  --ink: #111;
+  --muted: #444;
+  --line: #111;
+  --card: #fff;
+  --soft: #fff;
+  --fill: #111;
+  --on-fill: #fff;
   --pad: max(1rem, env(safe-area-inset-left));
   --padr: max(1rem, env(safe-area-inset-right));
 }
@@ -41,7 +44,7 @@ html, body {
 .panel {
   border: 1px solid var(--line);
   background: var(--card);
-  border-radius: 0.85rem;
+  border-radius: 0;
   padding: 1rem 1rem 0.9rem;
   margin-bottom: 0.75rem;
 }
@@ -86,8 +89,8 @@ html, body {
   text-transform: uppercase;
   color: var(--fg);
   border: 1px solid var(--line);
-  background: var(--soft);
-  border-radius: 999px;
+  background: var(--bg);
+  border-radius: 0;
   padding: 0.12rem 0.5rem;
 }
 .ticker-viewport {
@@ -124,7 +127,7 @@ html, body {
 .news-expand {
   border-top: 1px solid var(--line);
   padding: 0.85rem 1rem 1rem;
-  background: var(--soft);
+  background: var(--bg);
 }
 .news-expand-source {
   margin: 0 0 0.35rem;
@@ -143,7 +146,7 @@ html, body {
 .news-expand-body {
   margin: 0;
   font-size: 0.9rem;
-  color: #262626;
+  color: var(--ink);
   line-height: 1.45;
   white-space: pre-wrap;
 }
@@ -155,18 +158,24 @@ html, body {
 }
 .btn {
   appearance: none;
-  border: 1px solid var(--fg);
-  background: var(--bg);
-  color: var(--fg);
+  border: 1px solid var(--fill);
+  background: var(--fill);
+  color: var(--on-fill);
   font: inherit;
   font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.4rem 0.7rem;
-  border-radius: 0.45rem;
+  font-weight: 700;
+  padding: 12px 16px;
+  border-radius: 0;
   cursor: pointer;
   text-decoration: none;
 }
-.btn:active { background: var(--soft); }
+.btn:active { opacity: 0.85; }
+.btn.ghost, .btn-link {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  font-weight: 600;
+}
 .btn-link { display: inline-flex; align-items: center; }
 
 .status-row {
@@ -208,7 +217,7 @@ html, body {
   margin: 0.85rem 0 0;
   padding: 0.7rem 0.8rem;
   border: 1px solid var(--line);
-  border-radius: 0.65rem;
+  border-radius: 0;
   background: var(--soft);
   font-size: 0.82rem;
   line-height: 1.45;
@@ -238,10 +247,10 @@ html, body {
 }
 .tracker {
   border: 1px dashed var(--line);
-  border-radius: 0.75rem;
+  border-radius: 0;
   padding: 1.1rem 1rem;
   text-align: center;
-  background: var(--soft);
+  background: var(--bg);
 }
 .tracker-title { margin: 0; font-weight: 650; }
 .tracker-msg { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.88rem; }
@@ -270,7 +279,7 @@ html, body {
   flex:0 0 auto; border:1px solid var(--line); background:var(--bg); color:var(--muted);
   border-radius:999px; padding:0.35rem 0.7rem; font-size:0.8rem; font-family: inherit;
 }
-.tab[aria-selected="true"] { color:var(--fg); border-color:var(--fg); }
+.tab[aria-selected="true"] { color:var(--ink); border-color:var(--ink); background: var(--bg); }
 .day-panel { font-size: 0.9rem; }
 .day-title { margin:0 0 0.55rem; color:var(--muted); font-size:0.8rem; }
 .day-row {
