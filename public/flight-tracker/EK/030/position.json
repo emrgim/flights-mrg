@@ -2,14 +2,14 @@
   "registration": "A6-EOW",
   "icao24": "8963f4",
   "position": {
-    "lat": 48.078081,
-    "lon": 15.256559,
+    "lat": 48.861881,
+    "lon": 12.819599,
     "altitude": 40000,
-    "heading": 296.18,
-    "speed": 464.7,
-    "seenAt": "2026-09-09T11:57:17.948Z",
+    "heading": 295.8,
+    "speed": 436.5,
+    "seenAt": "2026-09-09T12:11:28.812Z",
     "onGround": false,
     "source": "adsb.lol-reg"
   },
-  "updatedAt": "2026-09-09T11:57:17.950Z"
+  "updatedAt": "2026-09-09T12:11:28.892Z"
 }
