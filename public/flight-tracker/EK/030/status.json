@@ -4,7 +4,7 @@
   "airlineName": "Emirates",
   "flightId": 1407221493,
   "status": "Scheduled",
-  "statusDetail": "On time",
+  "statusDetail": "Delayed ~23m",
   "statusCode": "S",
   "date": "2026-09-09",
   "departure": {
@@ -14,7 +14,7 @@
     "airport": "LHR",
     "dateLabel": "09-Sep-2026",
     "scheduled": "16:50",
-    "estimated": "16:50",
+    "estimated": "17:13",
     "actual": null,
     "timezoneLabel": "BST",
     "timezone": "Europe/London",
@@ -28,7 +28,7 @@
     "airport": "DXB",
     "dateLabel": "10-Sep-2026",
     "scheduled": "02:55",
-    "estimated": "02:41",
+    "estimated": "03:04",
     "actual": null,
     "timezoneLabel": "+04",
     "timezone": "Asia/Dubai",
@@ -37,7 +37,7 @@
   },
   "tracking": {
     "available": false,
-    "message": "Tracking will begin after departure"
+    "message": "Assigned hull A6-EOW \u2014 on ground / ADS-B without coordinates yet."
   },
   "codeshares": [
     {
@@ -50,11 +50,11 @@
     }
   ],
   "aircraft": {
-    "code": "388",
+    "code": "A388",
     "description": "Airbus A380-800 Passenger",
     "duration": "7h 5m",
-    "registration": null,
-    "icao24": null,
+    "registration": "A6-EOW",
+    "icao24": "8963F4",
     "position": null
   },
   "otherDays": [
@@ -161,15 +161,15 @@
       "flights": []
     }
   ],
-  "caution": "Heathrow operations recovering after Tuesday's NATS issue (resolved); flights operating today with knock-on cancellations/delays possible. Confirm with Emirates before travelling. Press lists EK030 among delayed services — treat on-time cautiously.",
+  "caution": "Heathrow operations recovering after Tuesday's NATS issue (resolved); flights operating today with knock-on cancellations/delays possible. Confirm with Emirates before travelling. FR24 shows EK030 estimated departure 17:13 BST (~23m late), hull A6-EOW.",
   "news": [
     {
-      "title": "Heathrow operations recovering — flights operating",
+      "title": "Heathrow operations recovering \u2014 flights operating",
       "url": "https://www.heathrow.com/departures",
       "source": "Heathrow Airport",
       "airport": "LHR",
       "summary": "NATS technical issue resolved Tuesday evening. Flights operating today; knock-on disruption expected as airlines reposition aircraft and crew. Check with airline before travelling.",
-      "fetchedAt": "2026-09-09T12:34:20.741Z"
+      "fetchedAt": "2026-09-09T13:51:50.898771Z"
     },
     {
       "title": "UK flights resume but airports warn of ongoing disruption",
@@ -177,7 +177,7 @@
       "source": "Reuters",
       "airport": "LHR",
       "summary": "British airports resumed flights early Wednesday after NATS resolved Tuesday's air-traffic failure; hubs warn recovery will take time with aircraft and crews out of position.",
-      "fetchedAt": "2026-09-09T12:34:20.741Z"
+      "fetchedAt": "2026-09-09T13:51:50.898771Z"
     },
     {
       "title": "Hundreds more Heathrow flights cancelled as network recovers",
@@ -185,7 +185,7 @@
       "source": "Evening Standard",
       "airport": "LHR",
       "summary": "Wednesday knock-on cancellations continue at Heathrow after NATS resolved the Tuesday outage; passengers advised to check with their airline before travelling.",
-      "fetchedAt": "2026-09-09T12:34:20.741Z"
+      "fetchedAt": "2026-09-09T13:51:50.898771Z"
     },
     {
       "title": "Dubai/Abu Dhabi delays after Heathrow outage",
@@ -193,26 +193,23 @@
       "source": "The National",
       "airport": "LHR",
       "summary": "EK030 from Heathrow listed among Emirates services running behind schedule amid knock-on UK disruption.",
-      "fetchedAt": "2026-09-09T12:34:20.741Z"
+      "fetchedAt": "2026-09-09T13:51:50.898771Z"
     }
   ],
-  "updatedAt": "2026-09-09T12:34:20.909Z",
+  "updatedAt": "2026-09-09T13:52:22.951Z",
   "sources": [
-    {
-      "name": "FlightStats",
-      "url": "https://www.flightstats.com/v2/flight-tracker/EK/030"
-    },
-    {
-      "name": "Heathrow",
-      "url": "https://www.heathrow.com/departures"
-    },
-    {
-      "name": "The National",
-      "url": "https://www.thenationalnews.com/travel/2026/09/09/dubai-abu-dhabi-flight-delays-cancellations/"
-    },
     {
       "name": "Flightradar24",
       "url": "https://www.flightradar24.com/data/flights/ek30"
+    },
+    {
+      "name": "FlightAware",
+      "url": "https://www.flightaware.com/live/flight/UAE30"
+    },
+    {
+      "name": "FlightStats",
+      "url": "https://www.flightstats.com/v2/flight-tracker/EK/030",
+      "note": "HTTP 403 from datacenter this run; used FR24/FA"
     }
   ]
 }
