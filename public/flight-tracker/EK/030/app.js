@@ -387,6 +387,14 @@
     $("aircraft").textContent =
       [ac.registration, ac.code, ac.description].filter(Boolean).join(" · ") || "—";
 
+    try {
+      updateMap(d);
+    } catch (mapErr) {
+      console.error(mapErr);
+      const seenEl = document.getElementById("mapSeen");
+      if (seenEl) seenEl.textContent = "Map error: " + (mapErr && mapErr.message ? mapErr.message : mapErr);
+    }
+
     const tabs = $("dayTabs");
     const panel = $("dayPanel");
     tabs.innerHTML = "";
