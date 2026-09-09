@@ -36,8 +36,8 @@
     "gate": null
   },
   "tracking": {
-    "available": true,
-    "message": "Live ADS-B on hull A6-EOW (airframe position; may not yet be operating EK030)."
+    "available": false,
+    "message": "Tracking will begin after departure"
   },
   "codeshares": [
     {
@@ -53,18 +53,9 @@
     "code": "388",
     "description": "Airbus A380-800 Passenger",
     "duration": "7h 5m",
-    "registration": "A6-EOW",
-    "icao24": "8963f4",
-    "position": {
-      "lat": 49.84376,
-      "lon": 9.531085,
-      "altitude": 40000,
-      "heading": 293.27,
-      "speed": 450.6,
-      "seenAt": "2026-09-09T12:30:20.840Z",
-      "onGround": false,
-      "source": "adsb.lol-reg"
-    }
+    "registration": null,
+    "icao24": null,
+    "position": null
   },
   "otherDays": [
     {
@@ -170,24 +161,42 @@
       "flights": []
     }
   ],
-  "caution": "Heathrow recovering from NATS ATC issue; knock-on disruption possible. Confirm with Emirates before going to the airport. Press lists EK030 among delayed services — treat on-time cautiously.",
+  "caution": "Heathrow operations recovering after Tuesday's NATS issue (resolved); flights operating today with knock-on cancellations/delays possible. Confirm with Emirates before travelling. Press lists EK030 among delayed services — treat on-time cautiously.",
   "news": [
     {
-      "title": "NATS air traffic control technical issue — Heathrow",
-      "url": "https://www.heathrow.com/departures/terminal-3/flight-details/EK030",
+      "title": "Heathrow operations recovering — flights operating",
+      "url": "https://www.heathrow.com/departures",
       "source": "Heathrow Airport",
       "airport": "LHR",
-      "summary": "Operations recovering; some knock-on disruption expected as airlines reposition aircraft and crew."
+      "summary": "NATS technical issue resolved Tuesday evening. Flights operating today; knock-on disruption expected as airlines reposition aircraft and crew. Check with airline before travelling.",
+      "fetchedAt": "2026-09-09T12:34:20.741Z"
+    },
+    {
+      "title": "UK flights resume but airports warn of ongoing disruption",
+      "url": "https://www.reuters.com/world/uk/uk-flights-resume-airports-warn-ongoing-disruption-air-traffic-outage-2026-09-09/",
+      "source": "Reuters",
+      "airport": "LHR",
+      "summary": "British airports resumed flights early Wednesday after NATS resolved Tuesday's air-traffic failure; hubs warn recovery will take time with aircraft and crews out of position.",
+      "fetchedAt": "2026-09-09T12:34:20.741Z"
+    },
+    {
+      "title": "Hundreds more Heathrow flights cancelled as network recovers",
+      "url": "https://www.standard.co.uk/news/london/heathrow-flights-cancelled-latest-wednesday-gatwick-nats-b1295995.html",
+      "source": "Evening Standard",
+      "airport": "LHR",
+      "summary": "Wednesday knock-on cancellations continue at Heathrow after NATS resolved the Tuesday outage; passengers advised to check with their airline before travelling.",
+      "fetchedAt": "2026-09-09T12:34:20.741Z"
     },
     {
       "title": "Dubai/Abu Dhabi delays after Heathrow outage",
       "url": "https://www.thenationalnews.com/travel/2026/09/09/dubai-abu-dhabi-flight-delays-cancellations/",
       "source": "The National",
       "airport": "LHR",
-      "summary": "EK030 from Heathrow listed among Emirates services running behind schedule."
+      "summary": "EK030 from Heathrow listed among Emirates services running behind schedule amid knock-on UK disruption.",
+      "fetchedAt": "2026-09-09T12:34:20.741Z"
     }
   ],
-  "updatedAt": "2026-09-09T12:30:20.871Z",
+  "updatedAt": "2026-09-09T12:34:20.909Z",
   "sources": [
     {
       "name": "FlightStats",
@@ -195,7 +204,7 @@
     },
     {
       "name": "Heathrow",
-      "url": "https://www.heathrow.com/departures/terminal-3/flight-details/EK030"
+      "url": "https://www.heathrow.com/departures"
     },
     {
       "name": "The National",
@@ -204,10 +213,6 @@
     {
       "name": "Flightradar24",
       "url": "https://www.flightradar24.com/data/flights/ek30"
-    },
-    {
-      "name": "adsb.lol",
-      "url": "https://api.adsb.lol/"
     }
   ]
 }

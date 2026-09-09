@@ -1,12 +1,195 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8" />
-  <meta http-equiv="refresh" content="0;url=/flight-tracker/EK/030/" />
-  <link rel="canonical" href="/flight-tracker/EK/030/" />
-  <title>Redirecting…</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>EK030 · Emirates Flight Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="./styles.css?v=lhr-board-dual-tz1" />
 </head>
 <body>
-  <p><a href="/flight-tracker/EK/030/">Open EK030 flight tracker</a></p>
+  <main class="page">
+    <header class="hero">
+      <div class="hero-top">
+        <p class="eyebrow">flights.mrg.im</p>
+        <div class="hero-meta">
+          <p class="header-clocks" id="headerClocks" aria-label="Live clocks">
+            <span class="clock-lhr" id="clockLhr">LHR —:—</span>
+            <span class="clock-local" id="clockLocal">local —:—</span>
+          </p>
+          <p class="latest-update" id="latestUpdate" title="">Latest update —</p>
+        </div>
+      </div>
+      <h1 id="title">(EK) Emirates 30</h1>
+      <p class="subtitle" id="subtitle">Flight Tracker</p>
+    </header>
+
+    <section class="panel news-ticker" id="newsTickerCard" aria-labelledby="dep-news-heading">
+      <button type="button" class="news-ticker-hit" id="newsTickerToggle" aria-expanded="false">
+        <div class="news-ticker-top">
+          <h2 id="dep-news-heading" class="panel-title">Departure airport news</h2>
+          <span class="news-ticker-tag" id="depNewsAirport">LHR</span>
+        </div>
+        <p class="news-now" id="newsNow">Loading…</p>
+        <div class="ticker-viewport" id="tickerViewport">
+          <div class="ticker-track" id="tickerTrack">
+            <span class="ticker-seq" id="tickerSeq"></span>
+          </div>
+        </div>
+        <p class="news-ticker-hint" id="newsTickerHint">Tap to expand &amp; read</p>
+      </button>
+      <div class="news-expand" id="newsExpand" hidden>
+        <p class="news-expand-source" id="newsExpandSource"></p>
+        <h3 class="news-expand-title" id="newsExpandTitle"></h3>
+        <p class="news-expand-body" id="newsExpandBody"></p>
+        <p class="news-fetched" id="newsFetched" hidden></p>
+        <div class="news-expand-actions">
+          <button type="button" class="btn ghost" id="newsPrev">Prev</button>
+          <button type="button" class="btn ghost" id="newsNext">Next</button>
+          <a class="btn ghost btn-link" id="newsOpen" href="#" target="_blank" rel="noopener noreferrer">Open source</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel status-panel" aria-labelledby="status-heading">
+      <h2 id="status-heading" class="panel-title">Flight Status</h2>
+      <div class="status-row">
+        <div class="flight-id">
+          <span class="flight-num" id="flightNum">EK 30</span>
+          <span class="airline" id="airline">Emirates</span>
+        </div>
+        <div class="cities">
+          <span id="depCity">London</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span id="arrCity">Dubai</span>
+        </div>
+      </div>
+      <div class="status-block">
+        <p class="status-main" id="status">Scheduled</p>
+        <p class="status-detail" id="statusDetail">On time</p>
+      </div>
+      <p class="caution" id="caution" hidden></p>
+      <div class="contact-cta" id="emiratesContactWrap" hidden>
+        <a class="btn" id="emiratesContactBtn" href="/flight-tracker/EK/contacts/">How to contact Emirates</a>
+      </div>
+    </section>
+
+    <section class="legs">
+      <article class="panel leg">
+        <h2 class="panel-title">Flight Departure Times</h2>
+        <p class="place-line" id="depPlace">London, EN, GB</p>
+        <p class="airport-name" id="depAirport">London Heathrow Airport</p>
+        <p class="date-line" id="depDate">—</p>
+        <dl class="kv">
+          <div><dt>Scheduled</dt><dd id="depSched">—</dd></div>
+          <div><dt>Estimated</dt><dd id="depEst">—</dd></div>
+          <div><dt>Actual</dt><dd id="depAct">—</dd></div>
+          <div><dt>Terminal</dt><dd id="depTerm">—</dd></div>
+          <div><dt>Gate</dt><dd id="depGate">—</dd></div>
+        </dl>
+      </article>
+      <article class="panel leg">
+        <h2 class="panel-title">Flight Arrival Times</h2>
+        <p class="place-line" id="arrPlace">Dubai, AE</p>
+        <p class="airport-name" id="arrAirport">Dubai International Airport</p>
+        <p class="date-line" id="arrDate">—</p>
+        <dl class="kv">
+          <div><dt>Scheduled</dt><dd id="arrSched">—</dd></div>
+          <div><dt>Estimated</dt><dd id="arrEst">—</dd></div>
+          <div><dt>Actual</dt><dd id="arrAct">—</dd></div>
+          <div><dt>Terminal</dt><dd id="arrTerm">—</dd></div>
+          <div><dt>Gate</dt><dd id="arrGate">—</dd></div>
+        </dl>
+      </article>
+    </section>
+
+    <section class="panel map-panel" aria-labelledby="map-heading">
+      <h2 id="map-heading" class="panel-title">Live aircraft map</h2>
+      <div class="map-meta">
+        <p class="map-reg" id="mapReg">Hull —</p>
+        <p class="map-seen" id="mapSeen">Waiting for ADS-B / aircraft not yet assigned</p>
+      </div>
+      <div id="map" class="map" role="img" aria-label="OpenStreetMap aircraft position"></div>
+      <p class="tracker-msg" id="trackerMsg">Tracking will begin after departure</p>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel-title">Additional Details</h2>
+      <div class="details-grid">
+        <div>
+          <h3 class="subhead">Also marketed as</h3>
+          <ul class="codeshares" id="codeshares"></ul>
+        </div>
+        <div>
+          <h3 class="subhead">Aircraft equipment</h3>
+          <p class="aircraft" id="aircraft">—</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="panel-title">Past and Upcoming Flights</h2>
+      <div class="tabs" id="dayTabs"></div>
+      <div id="dayPanel" class="day-panel"></div>
+    </section>
+
+
+    <section class="panel board-panel" aria-labelledby="board-heading">
+      <div class="board-head">
+        <h2 id="board-heading" class="panel-title">LHR departures board</h2>
+        <a class="board-official" href="https://www.heathrow.com/departures" target="_blank" rel="noopener noreferrer">heathrow.com/departures</a>
+      </div>
+      <p class="board-meta" id="boardMeta">Terminal 3 · loading…</p>
+      <div class="board-scroll">
+        <table class="fids" id="depBoard">
+          <thead>
+            <tr>
+              <th scope="col">Flight</th>
+              <th scope="col">To</th>
+              <th scope="col">Sched</th>
+              <th scope="col">Est</th>
+              <th scope="col">Status</th>
+              <th scope="col">Gate</th>
+              <th scope="col">Delay</th>
+            </tr>
+          </thead>
+          <tbody id="depBoardBody">
+            <tr><td colspan="7" class="muted">Loading departures…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3 class="subhead board-nearby-title">Live traffic near LHR (ADS-B)</h3>
+      <div class="board-scroll">
+        <table class="fids fids-nearby" id="nearbyBoard">
+          <thead>
+            <tr>
+              <th scope="col">Callsign</th>
+              <th scope="col">Reg</th>
+              <th scope="col">Alt</th>
+              <th scope="col">GS</th>
+              <th scope="col">State</th>
+            </tr>
+          </thead>
+          <tbody id="nearbyBoardBody">
+            <tr><td colspan="5" class="muted">Loading ADS-B…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="board-note muted" id="boardNote">Official FIDS via Heathrow · nearby traffic is ADS-B, not a gate board.</p>
+    </section>
+
+    <footer class="foot">
+      <p id="updated">Updated —</p>
+      <p class="muted">Bring Fast look · not affiliated with Emirates or FlightStats</p>
+      <p class="muted" id="sources"></p>
+    </footer>
+  </main>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="./app.js?v=lhr-board-dual-tz1"></script>
 </body>
 </html>

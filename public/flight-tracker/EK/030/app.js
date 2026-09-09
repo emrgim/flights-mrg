@@ -6,12 +6,22 @@
   const POSITION_MS = 20000;
   const FALLBACK_NEWS = [
     {
-      title: "NATS air traffic control technical issue — Heathrow",
-      url: "https://www.heathrow.com/departures/terminal-3/flight-details/EK030",
+      title: "Heathrow operations recovering — flights operating",
+      url: "https://www.heathrow.com/departures",
       source: "Heathrow Airport",
       airport: "LHR",
       summary:
-        "Operations recovering after NATS issue; knock-on disruption expected as airlines reposition aircraft and crew.",
+        "NATS technical issue resolved Tuesday evening. Flights operating today; knock-on disruption expected as airlines reposition aircraft and crew. Check with airline before travelling.",
+      fetchedAt: "2026-09-09T08:00:00.000Z",
+    },
+    {
+      title: "UK flights resume but airports warn of ongoing disruption",
+      url: "https://www.reuters.com/world/uk/uk-flights-resume-airports-warn-ongoing-disruption-air-traffic-outage-2026-09-09/",
+      source: "Reuters",
+      airport: "LHR",
+      summary:
+        "British airports resumed flights early Wednesday after NATS resolved Tuesday's failure; hubs warn recovery will take time with aircraft out of position.",
+      fetchedAt: "2026-09-09T06:26:00.000Z",
     },
     {
       title: "Dubai/Abu Dhabi delays after Heathrow outage",
@@ -19,55 +29,252 @@
       source: "The National",
       airport: "LHR",
       summary:
-        "EK030 from Heathrow listed among Emirates services running behind schedule amid UK ATC disruption.",
+        "EK030 from Heathrow listed among Emirates services running behind schedule amid knock-on UK disruption.",
+      fetchedAt: "2026-09-09T07:00:00.000Z",
     },
   ];
 
+  const MONTHS = {
+    Jan: "01", Feb: "02", Mar: "03", Apr: "04", May: "05", Jun: "06",
+    Jul: "07", Aug: "08", Sep: "09", Oct: "10", Nov: "11", Dec: "12",
+  };
+  const AIRPORT_TZ = { LHR: "Europe/London", DXB: "Asia/Dubai" };
+  const LABEL_TZ = { BST: "Europe/London", GMT: "Europe/London", "+04": "Asia/Dubai", GST: "Asia/Dubai" };
 
   const LHR = [51.47, -0.4543];
   const DXB = [25.2532, 55.3657];
 
   let lastUpdatedAt = null;
   let latestTickTimer = null;
+  let headerClockTimer = null;
+  let viewerTz = null;
+
+  function getViewerTz() {
+    if (viewerTz) return viewerTz;
+    try {
+      viewerTz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    } catch (e) {
+      viewerTz = "UTC";
+    }
+    return viewerTz;
+  }
+
+  function tzShortLabel(ianaTz, when) {
+    if (!ianaTz) return "";
+    try {
+      const parts = new Intl.DateTimeFormat("en-GB", {
+        timeZone: ianaTz,
+        timeZoneName: "short",
+      }).formatToParts(when || new Date());
+      const hit = parts.find(function (p) { return p.type === "timeZoneName"; });
+      if (hit && hit.value) return hit.value;
+    } catch (e) {}
+    const seg = String(ianaTz).split("/").pop();
+    return seg ? seg.replace(/_/g, " ") : ianaTz;
+  }
+
+  function dateLabelToYmd(label) {
+    if (!label) return null;
+    const m = String(label).match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
+    if (!m) return null;
+    const mon = MONTHS[m[2]];
+    return mon ? m[3] + "-" + mon + "-" + m[1] : null;
+  }
+
+  function dayLabelToYmd(label, year) {
+    if (!label || !year) return null;
+    const m = String(label).match(/^(\d{2})-([A-Za-z]{3})$/);
+    if (!m) return null;
+    const mon = MONTHS[m[2]];
+    return mon ? String(year) + "-" + mon + "-" + m[1] : null;
+  }
+
+  function resolveIanaTz(tzLabel, airport, explicit) {
+    if (explicit) return explicit;
+    if (airport && AIRPORT_TZ[String(airport).toUpperCase()]) return AIRPORT_TZ[String(airport).toUpperCase()];
+    if (tzLabel && LABEL_TZ[String(tzLabel).toUpperCase()]) return LABEL_TZ[String(tzLabel).toUpperCase()];
+    if (tzLabel && LABEL_TZ[tzLabel]) return LABEL_TZ[tzLabel];
+    return null;
+  }
+
+  function localToInstant(dateYmd, time24, ianaTz) {
+    if (!dateYmd || !time24 || !ianaTz) return null;
+    const dm = String(dateYmd).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    const tm = String(time24).match(/^(\d{1,2}):(\d{2})$/);
+    if (!dm || !tm) return null;
+    const y = Number(dm[1]);
+    const mo = Number(dm[2]);
+    const d = Number(dm[3]);
+    const hh = Number(tm[1]);
+    const mm = Number(tm[2]);
+    let utc = Date.UTC(y, mo - 1, d, hh, mm);
+    const fmt = new Intl.DateTimeFormat("en-US", {
+      timeZone: ianaTz,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+    for (let i = 0; i < 4; i++) {
+      const parts = Object.fromEntries(
+        fmt.formatToParts(new Date(utc))
+          .filter(function (p) { return p.type !== "literal"; })
+          .map(function (p) { return [p.type, Number(p.value)]; })
+      );
+      const diffMin = (hh - parts.hour) * 60 + (mm - parts.minute) + (d - parts.day) * 1440;
+      if (diffMin === 0) break;
+      utc += diffMin * 60000;
+    }
+    const out = new Date(utc);
+    return Number.isNaN(out.getTime()) ? null : out;
+  }
+
+  function fmtClockInTz(instant, ianaTz) {
+    if (!instant || !ianaTz) return "—:—";
+    try {
+      return new Intl.DateTimeFormat("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: ianaTz,
+      }).format(instant);
+    } catch (e) {
+      return "—:—";
+    }
+  }
+
+  function dualTimeHtml(opts) {
+    opts = opts || {};
+    const time24 = opts.time24;
+    const iso = opts.iso;
+    const dateYmd = opts.dateYmd;
+    const sourceTz = opts.sourceTz;
+    const tzLabel = opts.tzLabel || "";
+    const inline = opts.inline;
+    const viewer = getViewerTz();
+
+    let instant = null;
+    let primary = "—";
+
+    if (iso) {
+      instant = new Date(iso);
+      if (Number.isNaN(instant.getTime())) return "—";
+      try {
+        primary =
+          new Intl.DateTimeFormat("en-GB", {
+            dateStyle: opts.dateStyle || undefined,
+            timeStyle: opts.timeStyle || "medium",
+            hour: opts.timeStyle ? undefined : "2-digit",
+            minute: opts.timeStyle ? undefined : "2-digit",
+            hour12: false,
+            timeZone: sourceTz || viewer,
+          }).format(instant) +
+          (tzLabel ? " " + tzLabel : sourceTz ? " " + tzShortLabel(sourceTz, instant) : "");
+      } catch (e) {
+        primary = String(iso);
+      }
+    } else if (time24) {
+      instant = localToInstant(dateYmd, time24, sourceTz);
+      primary = tzLabel ? time24 + " " + tzLabel : time24;
+    } else {
+      return "—";
+    }
+
+    let secondary = "";
+    if (instant && sourceTz && viewer !== sourceTz) {
+      const localClock = fmtClockInTz(instant, viewer);
+      secondary =
+        '<span class="time-secondary">your local · ' +
+        localClock +
+        " " +
+        tzShortLabel(viewer, instant) +
+        "</span>";
+    }
+
+    const cls = "time-dual" + (inline ? " is-inline" : "");
+    return (
+      '<span class="' +
+      cls +
+      '"><span class="time-primary">' +
+      primary +
+      "</span>" +
+      secondary +
+      "</span>"
+    );
+  }
+
+  function setHtml(el, html) {
+    if (!el || typeof el.innerHTML === "undefined") return;
+    el.innerHTML = html;
+  }
+
+  function paintHeaderClocks() {
+    const lhrEl = document.getElementById("clockLhr");
+    const localEl = document.getElementById("clockLocal");
+    if (!lhrEl || !localEl) return;
+    const now = new Date();
+    const lhrClock = fmtClockInTz(now, "Europe/London");
+    const localClock = fmtClockInTz(now, getViewerTz());
+    lhrEl.textContent = "LHR " + lhrClock;
+    localEl.textContent = tzShortLabel(getViewerTz(), now) + " " + localClock;
+    if (!headerClockTimer) {
+      headerClockTimer = setInterval(paintHeaderClocks, 60000);
+    }
+  }
 
   function fmtLatestUpdate(iso) {
-    if (!iso) return "Latest update —";
+    if (!iso) return { text: "Latest update —", html: "Latest update —" };
     const then = new Date(iso);
-    if (Number.isNaN(then.getTime())) return "Latest update —";
+    if (Number.isNaN(then.getTime())) return { text: "Latest update —", html: "Latest update —" };
     const now = Date.now();
     const diffMs = Math.max(0, now - then.getTime());
     const diffMin = Math.floor(diffMs / 60000);
     if (diffMin < 60) {
       const m = Math.max(1, diffMin || (diffMs < 15000 ? 0 : 1));
-      if (m <= 0) return "Latest update · adesso";
-      if (m === 1) return "Latest update · 1 minuto fa";
-      return "Latest update · " + m + " minuti fa";
+      if (m <= 0) return { text: "Latest update · adesso", html: "Latest update · adesso" };
+      if (m === 1) return { text: "Latest update · 1 minuto fa", html: "Latest update · 1 minuto fa" };
+      const rel = "Latest update · " + m + " minuti fa";
+      return { text: rel, html: rel };
     }
-    try {
-      const clock = new Intl.DateTimeFormat("en-GB", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-        timeZone: "Asia/Dubai",
-      }).format(then);
-      return "Latest update · " + clock;
-    } catch (e) {
-      return "Latest update · " + then.toISOString();
-    }
+    const gstClock = fmtClockInTz(then, "Asia/Dubai");
+    const dual = dualTimeHtml({
+      iso: iso,
+      sourceTz: "Asia/Dubai",
+      tzLabel: "GST",
+      timeStyle: "short",
+      inline: true,
+    });
+    return {
+      text: "Latest update · " + gstClock + " GST",
+      html: "Latest update · " + dual,
+    };
   }
 
   function paintLatestUpdate(iso) {
     if (iso) lastUpdatedAt = iso;
     const el = document.getElementById("latestUpdate");
     if (!el) return;
-    el.textContent = fmtLatestUpdate(lastUpdatedAt);
+    const out = fmtLatestUpdate(lastUpdatedAt);
+    if (out.html.indexOf("<") !== -1) setHtml(el, out.html);
+    else el.textContent = out.text;
     if (lastUpdatedAt) {
       try {
-        el.title = new Intl.DateTimeFormat("en-GB", {
-          dateStyle: "medium",
-          timeStyle: "medium",
-          timeZone: "Asia/Dubai",
-        }).format(new Date(lastUpdatedAt)) + " GST";
+        el.title =
+          new Intl.DateTimeFormat("en-GB", {
+            dateStyle: "medium",
+            timeStyle: "medium",
+            timeZone: "Asia/Dubai",
+          }).format(new Date(lastUpdatedAt)) +
+          " GST · " +
+          new Intl.DateTimeFormat("en-GB", {
+            dateStyle: "medium",
+            timeStyle: "medium",
+            timeZone: getViewerTz(),
+          }).format(new Date(lastUpdatedAt)) +
+          " " +
+          tzShortLabel(getViewerTz(), new Date(lastUpdatedAt));
       } catch (e) {
         el.title = String(lastUpdatedAt);
       }
@@ -140,14 +347,13 @@
 
   function fmtSeen(iso) {
     if (!iso) return "";
-    try {
-      return new Intl.DateTimeFormat("en-GB", {
-        timeStyle: "medium",
-        timeZone: "Asia/Dubai",
-      }).format(new Date(iso)) + " GST";
-    } catch (e) {
-      return String(iso);
-    }
+    return dualTimeHtml({
+      iso: iso,
+      sourceTz: "Asia/Dubai",
+      tzLabel: "GST",
+      timeStyle: "medium",
+      inline: true,
+    });
   }
 
   function updateMap(d) {
@@ -275,17 +481,17 @@
     if (Number.isFinite(tr.speedKt) && tr.speedKt > 0) bits.push(Math.round(tr.speedKt) + " kt");
     if (Number.isFinite(heading)) bits.push(Math.round(heading) + "°");
     if (tr.source) bits.push(tr.source);
-    if (tr.seenAt) bits.push("fix " + fmtSeen(tr.seenAt));
+    if (tr.seenAt) bits.push('fix <span class="map-fix-time">' + fmtSeen(tr.seenAt) + "</span>");
     if (errNm != null && Number.isFinite(errNm)) {
       bits.push("Δ " + (errNm < 0.1 ? (errNm * 1852).toFixed(0) + " m" : errNm.toFixed(1) + " nm"));
     }
-    if (seenEl) seenEl.textContent = bits.join(" · ") || "Live position";
+    if (seenEl) seenEl.innerHTML = bits.join(" · ") || "Live position";
 
     // Keep altitude in label from lastFix when available
     if (seenEl && lastFix && lastFix.altitude != null && !tr.onGround) {
-      const base = seenEl.textContent;
+      const base = seenEl.innerHTML;
       if (base.indexOf(" ft") === -1) {
-        seenEl.textContent = Math.round(lastFix.altitude) + " ft · " + base;
+        seenEl.innerHTML = Math.round(lastFix.altitude) + " ft · " + base;
       }
     }
 
@@ -408,11 +614,14 @@
   }
 
   function paintExpanded() {
+    const fetchedEl = $("newsFetched");
     if (!depNewsItems.length) {
       $("newsExpandSource").textContent = "—";
       $("newsExpandTitle").textContent = "No news";
       $("newsExpandBody").textContent = "No departure-airport headlines in the latest update.";
       $("newsOpen").hidden = true;
+      fetchedEl.hidden = true;
+      fetchedEl.textContent = "";
       return;
     }
     const n = depNewsItems[depNewsIndex % depNewsItems.length];
@@ -420,6 +629,24 @@
     $("newsExpandTitle").textContent = n.title || "Untitled";
     $("newsExpandBody").textContent =
       n.summary || n.body || "No article body in feed — open the source for the full story.";
+    if (n.fetchedAt) {
+      fetchedEl.hidden = false;
+      setHtml(
+        fetchedEl,
+        "Fetched " +
+          dualTimeHtml({
+            iso: n.fetchedAt,
+            sourceTz: "Europe/London",
+            tzLabel: tzShortLabel("Europe/London", new Date(n.fetchedAt)),
+            timeStyle: "short",
+            dateStyle: "medium",
+            inline: true,
+          })
+      );
+    } else {
+      fetchedEl.hidden = true;
+      fetchedEl.textContent = "";
+    }
     if (n.url) {
       $("newsOpen").hidden = false;
       $("newsOpen").href = n.url;
@@ -471,9 +698,14 @@
     wire();
   }
 
-  function timeWithTz(t, tzLabel) {
+  function timeWithTz(t, tzLabel, dateYmd, ianaTz) {
     if (!t) return "—";
-    return tzLabel ? t + " " + tzLabel : t;
+    return dualTimeHtml({
+      time24: t,
+      dateYmd: dateYmd,
+      sourceTz: ianaTz || resolveIanaTz(tzLabel),
+      tzLabel: tzLabel,
+    });
   }
 
   function render(d) {
@@ -515,21 +747,23 @@
 
     const dep = d.departure || {};
     const arr = d.arrival || {};
+    const depYmd = dateLabelToYmd(dep.dateLabel) || d.date || null;
+    const arrYmd = dateLabelToYmd(arr.dateLabel) || null;
     $("depPlace").textContent = [dep.city, dep.region].filter(Boolean).join(", ");
     $("depAirport").textContent = dep.airportName || "London Heathrow Airport";
     $("depDate").textContent = dep.dateLabel || "";
-    $("depSched").textContent = timeWithTz(dep.scheduled, dep.timezoneLabel);
-    $("depEst").textContent = timeWithTz(dep.estimated, dep.timezoneLabel);
-    $("depAct").textContent = timeWithTz(dep.actual, dep.timezoneLabel);
+    setHtml($("depSched"), timeWithTz(dep.scheduled, dep.timezoneLabel, depYmd, dep.timezone));
+    setHtml($("depEst"), timeWithTz(dep.estimated, dep.timezoneLabel, depYmd, dep.timezone));
+    setHtml($("depAct"), timeWithTz(dep.actual, dep.timezoneLabel, depYmd, dep.timezone));
     $("depTerm").textContent = dep.terminal || "N/A";
     $("depGate").textContent = dep.gate || "N/A";
 
     $("arrPlace").textContent = [arr.city, arr.region].filter(Boolean).join(", ");
     $("arrAirport").textContent = arr.airportName || "Dubai International Airport";
     $("arrDate").textContent = arr.dateLabel || "";
-    $("arrSched").textContent = timeWithTz(arr.scheduled, arr.timezoneLabel);
-    $("arrEst").textContent = timeWithTz(arr.estimated, arr.timezoneLabel);
-    $("arrAct").textContent = timeWithTz(arr.actual, arr.timezoneLabel);
+    setHtml($("arrSched"), timeWithTz(arr.scheduled, arr.timezoneLabel, arrYmd, arr.timezone));
+    setHtml($("arrEst"), timeWithTz(arr.estimated, arr.timezoneLabel, arrYmd, arr.timezone));
+    setHtml($("arrAct"), timeWithTz(arr.actual, arr.timezoneLabel, arrYmd, arr.timezone));
     $("arrTerm").textContent = arr.terminal || "N/A";
     $("arrGate").textContent = arr.gate || "N/A";
 
@@ -594,19 +828,48 @@
       if (!flights.length) {
         html += '<p class="day-empty">No flight information available for this date.</p>';
       } else {
+        const dayYmd = dayLabelToYmd(day.label, day.year);
         for (let fi = 0; fi < flights.length; fi++) {
           const f = flights[fi];
+          const depTz = resolveIanaTz(f.depTz, f.from);
+          const arrTz = resolveIanaTz(f.arrTz, f.to);
+          let arrDayYmd = dayYmd;
+          if (dayYmd && f.dep && f.arr) {
+            const depM = String(f.dep).match(/^(\d{1,2}):(\d{2})$/);
+            const arrM = String(f.arr).match(/^(\d{1,2}):(\d{2})$/);
+            if (depM && arrM) {
+              const depMin = Number(depM[1]) * 60 + Number(depM[2]);
+              const arrMin = Number(arrM[1]) * 60 + Number(arrM[2]);
+              if (arrMin < depMin) {
+                const next = new Date(dayYmd + "T12:00:00Z");
+                next.setUTCDate(next.getUTCDate() + 1);
+                arrDayYmd = next.toISOString().slice(0, 10);
+              }
+            }
+          }
+          const depHtml = f.dep
+            ? dualTimeHtml({
+                time24: f.dep,
+                dateYmd: dayYmd,
+                sourceTz: depTz,
+                tzLabel: f.depTz || "",
+              })
+            : "—";
+          const arrHtml = f.arr
+            ? dualTimeHtml({
+                time24: f.arr,
+                dateYmd: arrDayYmd,
+                sourceTz: arrTz,
+                tzLabel: f.arrTz || "",
+              })
+            : "—";
           html +=
             '<div class="day-row"><div><div class="day-time">' +
-            (f.dep || "—") +
-            " " +
-            (f.depTz || "") +
+            depHtml +
             '</div><div class="day-air">' +
             (f.from || "") +
             '</div></div><div class="arrow" aria-hidden="true">→</div><div style="text-align:right"><div class="day-time">' +
-            (f.arr || "—") +
-            " " +
-            (f.arrTz || "") +
+            arrHtml +
             '</div><div class="day-air">' +
             (f.to || "") +
             "</div></div></div>";
@@ -628,17 +891,27 @@
     if (days.length) showDay(selected);
 
     paintLatestUpdate(d.updatedAt || null);
-    try {
-      $("updated").textContent =
-        "Updated " +
-        new Intl.DateTimeFormat("en-GB", {
-          dateStyle: "medium",
-          timeStyle: "short",
-          timeZone: "Asia/Dubai",
-        }).format(new Date(d.updatedAt)) +
-        " GST · Auto-refresh 45s";
-    } catch (e) {
-      $("updated").textContent = "Updated " + (d.updatedAt || "—");
+    paintHeaderClocks();
+    if (d.updatedAt) {
+      try {
+        setHtml(
+          $("updated"),
+          "Updated " +
+            dualTimeHtml({
+              iso: d.updatedAt,
+              sourceTz: "Asia/Dubai",
+              tzLabel: "GST",
+              timeStyle: "short",
+              dateStyle: "medium",
+              inline: true,
+            }) +
+            " · Auto-refresh 45s"
+        );
+      } catch (e) {
+        $("updated").textContent = "Updated " + (d.updatedAt || "—");
+      }
+    } else {
+      $("updated").textContent = "Updated —";
     }
 
     const sources = (d.sources || [])
@@ -663,6 +936,31 @@
     return n + "m";
   }
 
+  function londonTodayYmd() {
+    try {
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Europe/London",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date());
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function boardTimeCell(hhmm, dateYmd, boardCtx) {
+    if (!hhmm || hhmm === "—") return "—";
+    const ymd = dateYmd || (boardCtx && boardCtx.date) || londonTodayYmd();
+    const lbl = tzShortLabel("Europe/London", localToInstant(ymd, hhmm, "Europe/London") || new Date());
+    return dualTimeHtml({
+      time24: hhmm,
+      dateYmd: ymd,
+      sourceTz: "Europe/London",
+      tzLabel: lbl,
+    });
+  }
+
   function paintBoard(board) {
     board = board || {};
     const deps = Array.isArray(board.departures) ? board.departures : [];
@@ -671,23 +969,19 @@
     if (meta) {
       let when = "";
       if (board.updatedAt) {
-        try {
-          when =
-            " · " +
-            new Intl.DateTimeFormat("en-GB", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-              timeZone: "Europe/London",
-            }).format(new Date(board.updatedAt)) +
-            " BST/GMT";
-        } catch (e) {
-          when = "";
-        }
+        when =
+          " · " +
+          dualTimeHtml({
+            iso: board.updatedAt,
+            sourceTz: "Europe/London",
+            tzLabel: tzShortLabel("Europe/London", new Date(board.updatedAt)),
+            timeStyle: "short",
+            inline: true,
+          });
       }
-      meta.textContent =
+      meta.innerHTML =
         "Terminal " +
-        (board.terminal || "3") +
+        escapeHtml(String(board.terminal || "3")) +
         " · " +
         deps.length +
         " departures · " +
@@ -709,6 +1003,7 @@
           const late = Number.isFinite(delay) && delay >= 15;
           if (late || /delay/i.test(String(r.status || ""))) tr.classList.add("is-delayed");
           const delayTd = fmtDelay(r.delayMin);
+          const rowDate = r.scheduledDate || board.date || londonTodayYmd();
           tr.innerHTML =
             "<td><strong>" +
             escapeHtml(flight || "—") +
@@ -716,11 +1011,11 @@
             '<td class="dest-cell">' +
             escapeHtml(r.destination || "—") +
             "</td>" +
-            "<td>" +
-            escapeHtml(r.scheduled || "—") +
+            '<td class="time-cell">' +
+            boardTimeCell(r.scheduled, rowDate, board) +
             "</td>" +
-            "<td>" +
-            escapeHtml(r.estimated || "—") +
+            '<td class="time-cell">' +
+            boardTimeCell(r.estimated, rowDate, board) +
             "</td>" +
             '<td class="status-cell">' +
             escapeHtml(r.status || "—") +
@@ -820,6 +1115,8 @@
   }
 
   // Paint fallback immediately so the card is never empty while fetch runs
+  getViewerTz();
+  paintHeaderClocks();
   startDepNews({ departure: { airport: "LHR" }, news: FALLBACK_NEWS });
   load();
   loadBoard();
