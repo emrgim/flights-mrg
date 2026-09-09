@@ -380,6 +380,13 @@ a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
   filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 2px #fff);
 }
 @keyframes plane-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(1.12); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .plane-marker { animation: none; }
+}
+@keyframes plane-pulse {
   0%, 100% {
     opacity: 1;
     filter: drop-shadow(0 0 0 transparent);

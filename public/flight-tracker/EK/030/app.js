@@ -212,7 +212,7 @@
         planeMarker.bindTooltip(reg, {
           permanent: true,
           direction: "right",
-          offset: [28, 0],
+          offset: [40, 0],
           className: "plane-label",
         });
       }
@@ -223,7 +223,7 @@
         planeMarker.bindTooltip(reg, {
           permanent: true,
           direction: "right",
-          offset: [28, 0],
+          offset: [40, 0],
           className: "plane-label",
         });
       }
