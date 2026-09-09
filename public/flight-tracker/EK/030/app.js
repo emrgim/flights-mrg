@@ -43,7 +43,8 @@
   }
 
   function ensureMap() {
-    if (map || typeof L === "undefined") return map;
+    if (map) return map;
+    if (typeof L === "undefined") return null;
     const el = document.getElementById("map");
     if (!el) return null;
     map = L.map(el, {
@@ -51,10 +52,12 @@
       attributionControl: true,
       scrollWheelZoom: false,
     });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    // Carto light tiles (OSM data) — more reliable than tile.openstreetmap.org on mobile CDNs
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
       maxZoom: 18,
+      subdomains: "abcd",
       attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
     }).addTo(map);
     routeLine = L.polyline([LHR, DXB], {
       color: "#111",
@@ -63,11 +66,13 @@
       dashArray: "4 6",
     }).addTo(map);
     map.fitBounds(L.latLngBounds(LHR, DXB).pad(0.18));
-    setTimeout(function () {
-      try {
-        map.invalidateSize();
-      } catch (e) {}
-    }, 80);
+    [80, 300, 800].forEach(function (ms) {
+      setTimeout(function () {
+        try {
+          map.invalidateSize();
+        } catch (e) {}
+      }, ms);
+    });
     return map;
   }
 
