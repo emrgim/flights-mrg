@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <link rel="stylesheet" href="./styles.css?v=lhr-board-dual-tz1" />
+  <link rel="stylesheet" href="./styles.css?v=ek030-mobile3" />
 </head>
 <body>
   <main class="page">
@@ -145,40 +145,12 @@
         <a class="board-official" href="https://www.heathrow.com/departures" target="_blank" rel="noopener noreferrer">heathrow.com/departures</a>
       </div>
       <p class="board-meta" id="boardMeta">Terminal 3 · loading…</p>
-      <div class="board-scroll">
-        <table class="fids" id="depBoard">
-          <thead>
-            <tr>
-              <th scope="col">Flight</th>
-              <th scope="col">To</th>
-              <th scope="col">Sched</th>
-              <th scope="col">Est</th>
-              <th scope="col">Status</th>
-              <th scope="col">Gate</th>
-              <th scope="col">Delay</th>
-            </tr>
-          </thead>
-          <tbody id="depBoardBody">
-            <tr><td colspan="7" class="muted">Loading departures…</td></tr>
-          </tbody>
-        </table>
+      <div class="board-cards" id="depBoardCards" aria-live="polite">
+        <p class="board-empty muted">Loading departures…</p>
       </div>
       <h3 class="subhead board-nearby-title">Live traffic near LHR (ADS-B)</h3>
-      <div class="board-scroll">
-        <table class="fids fids-nearby" id="nearbyBoard">
-          <thead>
-            <tr>
-              <th scope="col">Callsign</th>
-              <th scope="col">Reg</th>
-              <th scope="col">Alt</th>
-              <th scope="col">GS</th>
-              <th scope="col">State</th>
-            </tr>
-          </thead>
-          <tbody id="nearbyBoardBody">
-            <tr><td colspan="5" class="muted">Loading ADS-B…</td></tr>
-          </tbody>
-        </table>
+      <div class="board-cards board-cards-nearby" id="nearbyBoardCards" aria-live="polite">
+        <p class="board-empty muted">Loading ADS-B…</p>
       </div>
       <p class="board-note muted" id="boardNote">Official FIDS via Heathrow · nearby traffic is ADS-B, not a gate board.</p>
     </section>
@@ -190,6 +162,6 @@
     </footer>
   </main>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="./app.js?v=lhr-board-dual-tz1"></script>
+  <script src="./app.js?v=ek030-mobile3"></script>
 </body>
 </html>
