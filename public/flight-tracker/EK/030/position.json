@@ -2,14 +2,14 @@
   "registration": "A6-EVS",
   "icao24": "89655f",
   "position": {
-    "lat": 47.819622,
-    "lon": 15.161133,
-    "altitude": 40000,
-    "heading": 120.52,
-    "speed": 511.9,
-    "seenAt": "2026-09-09T17:37:00.966Z",
+    "lat": 46.868958,
+    "lon": 17.215919,
+    "altitude": 39000,
+    "heading": 127.64,
+    "speed": 519,
+    "seenAt": "2026-09-09T17:48:57.206Z",
     "onGround": false,
     "source": "adsb.lol-reg"
   },
-  "updatedAt": "2026-09-09T17:37:01.047Z"
+  "updatedAt": "2026-09-09T17:48:57.415Z"
 }
