@@ -417,3 +417,72 @@ a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
 .leaflet-tooltip-bottom.plane-label::before,
 .leaflet-tooltip-left.plane-label::before,
 .leaflet-tooltip-right.plane-label::before { display: none; }
+
+
+/* LHR FIDS-style departures board */
+.board-panel .board-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 14px;
+  margin-bottom: 6px;
+}
+.board-panel .board-head .panel-title { margin: 0; }
+.board-official {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+.board-meta {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.board-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  margin-bottom: 12px;
+}
+.fids {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82rem;
+}
+.fids th,
+.fids td {
+  padding: 7px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.fids th {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+}
+.fids tbody tr:last-child td { border-bottom: 0; }
+.fids tr.is-ek {
+  background: #111;
+  color: #fff;
+}
+.fids tr.is-ek td { border-bottom-color: #333; }
+.fids tr.is-delayed td.delay-cell,
+.fids td.delay-cell.is-late {
+  font-weight: 700;
+}
+.fids .delay-cell.is-late {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.fids .status-cell { font-weight: 600; max-width: 14rem; overflow: hidden; text-overflow: ellipsis; }
+.fids .dest-cell { max-width: 11rem; overflow: hidden; text-overflow: ellipsis; }
+.board-nearby-title { margin-top: 4px; }
+.board-note { margin: 0; font-size: 0.68rem; }

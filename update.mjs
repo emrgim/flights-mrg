@@ -432,6 +432,278 @@ function posLabel(pos) {
   return `${pos.lat.toFixed(3)},${pos.lon.toFixed(3)} @${pos.source}`;
 }
 
+
+async function fetchNearbyLhr() {
+  const url = "https://api.adsb.lol/v2/lat/51.47/lon/-0.45/dist/15";
+  const data = await fetchJson(url, { timeout: 20000 });
+  const list = data?.ac || data?.aircraft || [];
+  const nearby = [];
+  for (const a of Array.isArray(list) ? list : []) {
+    const flight = String(a.flight || a.callsign || "").trim() || null;
+    const registration = normalizeReg(a.r || a.reg || a.registration) ||
+      (a.r || a.reg || a.registration ? String(a.r || a.reg || a.registration).trim() : null);
+    const altRaw = a.alt_baro ?? a.alt_geom ?? a.altitude;
+    const onGround =
+      altRaw === "ground" ||
+      a.ground === true ||
+      a.on_ground === true ||
+      (typeof altRaw === "number" && altRaw <= 0);
+    let altitude = null;
+    if (typeof altRaw === "number" && Number.isFinite(altRaw)) altitude = altRaw;
+    else if (typeof altRaw === "string" && altRaw !== "ground" && Number.isFinite(Number(altRaw))) {
+      altitude = Number(altRaw);
+    }
+    const speed = Number(a.gs ?? a.ground_speed ?? a.speed);
+    nearby.push({
+      flight,
+      registration,
+      altitude: onGround ? 0 : altitude,
+      speed: Number.isFinite(speed) ? Math.round(speed) : null,
+      onGround: Boolean(onGround),
+    });
+  }
+  // Prefer aircraft with callsigns; cap list
+  nearby.sort((a, b) => {
+    const ag = a.onGround === b.onGround ? 0 : a.onGround ? 1 : -1;
+    if (ag) return ag;
+    return String(a.flight || "").localeCompare(String(b.flight || ""));
+  });
+  return { nearby: nearby.slice(0, 40), url };
+}
+
+function hhmmToMinutes(hhmm) {
+  if (!hhmm) return null;
+  const m = String(hhmm).match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return null;
+  return Number(m[1]) * 60 + Number(m[2]);
+}
+
+function localIsoToHhmm(iso) {
+  if (!iso) return null;
+  const m = String(iso).match(/T(\d{2}:\d{2})/);
+  return m ? m[1] : null;
+}
+
+function parseHeathrowStatus(statusObj) {
+  const code = statusObj?.statusCode || null;
+  const message = statusObj?.message || "";
+  const data = statusObj?.statusData || [];
+  const locKey = data[0]?.localisationKey || null;
+  const timeData = data.find((d) => /^\d{1,2}:\d{2}$/.test(String(d.data || "")))?.data || null;
+  // Estimate/actual clock from message: "Delayed 14:29", "On time 16:50", "Departed 09:30"
+  const msgTime = (message.match(/(?:Delayed|On time|Departed|Expected)\s+(\d{1,2}:\d{2})/i) || [])[1] || timeData;
+  let status = message.split(",")[0].trim() || code || "Unknown";
+  if (locKey === "OnTime") status = msgTime ? `On time ${msgTime}` : "On time";
+  else if (locKey === "Delayed") status = msgTime ? `Delayed ${msgTime}` : "Delayed";
+  else if (locKey === "Departed") status = msgTime ? `Departed ${msgTime}` : "Departed";
+  else if (locKey === "Cancelled" || code === "CX") status = "Cancelled";
+  else if (locKey === "GateOpen" || code === "GO") status = timeData ? `Gate open ${timeData}` : "Gate open";
+  else if (code === "TX") status = msgTime ? `Taxied ${msgTime}` : (message || "Taxied");
+  else if (code === "BD") status = "Boarding";
+  else if (code === "LC") status = "Last call";
+  else if (code === "GC") status = "Gate closed";
+  return { code, status, estimatedHhmm: msgTime || null, delayed: /delay/i.test(message) || locKey === "Delayed" };
+}
+
+function mapHeathrowDeparture(item) {
+  const fs = item?.flightService || {};
+  const am = fs.aircraftMovement || {};
+  const statusObj = (am.aircraftMovementStatus || [])[0] || {};
+  const ports = am.route?.portsOfCall || [];
+  const origin = ports.find((p) => p.portOfCallType === "ORIGIN") || {};
+  const dest = ports.find((p) => p.portOfCallType === "DESTINATION") || {};
+  const oAf = origin.airportFacility || {};
+  const dAf = dest.airportFacility || {};
+  const termFac = oAf.terminalFacility || {};
+  const gateFac = termFac.gateFacility || {};
+  const scheduledIso = origin.operatingTimes?.scheduled?.local || null;
+  const scheduled = localIsoToHhmm(scheduledIso);
+  const parsed = parseHeathrowStatus(statusObj);
+  let estimated = parsed.estimatedHhmm;
+  // For departed, estimated/actual is the departed time
+  if (parsed.code === "AB" && parsed.estimatedHhmm) estimated = parsed.estimatedHhmm;
+  let delayMin = null;
+  if (scheduled && estimated) {
+    let d = hhmmToMinutes(estimated) - hhmmToMinutes(scheduled);
+    if (Number.isFinite(d)) {
+      // wrap midnight
+      if (d < -12 * 60) d += 24 * 60;
+      if (d > 12 * 60) d -= 24 * 60;
+      delayMin = d;
+    }
+  }
+  if (parsed.delayed && delayMin != null && delayMin < 0) {
+    // Delayed message time is the new estimated; if negative, keep as-is only if |d| huge — usually positive
+  }
+  const destCity = dAf.airportCityLocation?.name || null;
+  const destCode = dAf.iataIdentifier || null;
+  const destination = [destCity, destCode].filter(Boolean).join(" · ") || destCode || destCity || null;
+  const share = fs.codeShareStatus || "";
+  const isOperating =
+    share === "NORMAL_FLIGHT" ||
+    share === "CODESHARE_OPERATING_FLIGHT" ||
+    !share;
+  return {
+    flight: fs.iataFlightIdentifier || null,
+    destination,
+    scheduled,
+    estimated,
+    status: parsed.status,
+    statusCode: parsed.code,
+    gate: gateFac.gateNumber ? String(gateFac.gateNumber).trim() : null,
+    terminal: termFac.code ? String(termFac.code) : "3",
+    delayMin: delayMin != null && delayMin !== 0 ? delayMin : delayMin === 0 ? 0 : null,
+    scheduledIso,
+    isOperating,
+    delayed: Boolean(parsed.delayed || (delayMin != null && delayMin >= 15)),
+  };
+}
+
+async function fetchHeathrowDepartures() {
+  const url = "https://api-dp-prod.dp.heathrow.com/pihub/flights/departures?terminal=3";
+  const res = await fetch(url, {
+    headers: {
+      "user-agent": UA,
+      accept: "application/json",
+      origin: "https://www.heathrow.com",
+      referer: "https://www.heathrow.com/departures",
+    },
+    signal: AbortSignal.timeout(30000),
+  });
+  if (!res.ok) throw new Error(`heathrow departures → ${res.status}`);
+  const data = await res.json();
+  if (!Array.isArray(data)) throw new Error("heathrow departures: unexpected payload");
+  const mapped = data.map(mapHeathrowDeparture).filter((r) => r.flight && r.isOperating);
+
+  // Window: from 90 min ago to 6h ahead (London local via scheduledIso)
+  const now = Date.now();
+  const lo = now - 90 * 60 * 1000;
+  const hi = now + 6 * 60 * 60 * 1000;
+  const inWindow = mapped.filter((r) => {
+    if (!r.scheduledIso) return true;
+    // scheduledIso is local without Z — treat as Europe/London wall time approx by appending offset is hard;
+    // parse as local components vs Date in London.
+    const m = String(r.scheduledIso).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+    if (!m) return true;
+    // Build a UTC instant approximating BST/GMT via Intl offset
+    const asUtcGuess = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+    // Correct using London offset at that date
+    const probe = new Date(asUtcGuess);
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Europe/London",
+      timeZoneName: "shortOffset",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).formatToParts(probe);
+    const get = (t) => parts.find((p) => p.type === t)?.value;
+    // Better: format a known UTC and compare — use temporal trick
+    // Simpler approach: compare HH:MM strings against current London time for same calendar day
+    return true; // filter below with London clock
+  });
+
+  const londonNow = new Date();
+  const londonYmd = todayYmdInTz("Europe/London");
+  const londonHm = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(londonNow);
+  const nowMin = hhmmToMinutes(londonHm);
+
+  const filtered = mapped.filter((r) => {
+    if (!r.scheduledIso) return false;
+    const day = r.scheduledIso.slice(0, 10);
+    const schedMin = hhmmToMinutes(r.scheduled);
+    if (schedMin == null || nowMin == null) return true;
+    // same day preferred; allow previous day late / next day early via iso day
+    if (day === londonYmd) {
+      return schedMin >= nowMin - 90 && schedMin <= nowMin + 360;
+    }
+    // include cancelled/delayed from earlier today already covered; skip other days unless within window via iso
+    const t = Date.parse(r.scheduledIso + "+01:00"); // BST-ish; degrade ok for windowing
+    if (!Number.isFinite(t)) return day === londonYmd;
+    return t >= lo && t <= hi;
+  });
+
+  filtered.sort((a, b) => String(a.scheduledIso).localeCompare(String(b.scheduledIso)));
+
+  const departedCodes = new Set(["AB", "TX"]);
+  const recentDeparted = filtered.filter((r) => departedCodes.has(r.statusCode)).slice(-12);
+  const upcoming = filtered.filter((r) => !departedCodes.has(r.statusCode));
+  let picked = [...recentDeparted, ...upcoming];
+  // Always keep EK030 / EK30 if present in the filtered window (or broader mapped set)
+  const ek = filtered.find((r) => /^EK0*30$/i.test(r.flight)) ||
+    mapped.find((r) => /^EK0*30$/i.test(r.flight));
+  if (ek && !picked.some((r) => r.flight === ek.flight)) {
+    picked.push(ek);
+    picked.sort((a, b) => String(a.scheduledIso).localeCompare(String(b.scheduledIso)));
+  }
+  // Cap while preserving EK030
+  if (picked.length > 55) {
+    const ekFlight = ek?.flight;
+    picked = picked.filter((r, i) => i < 55 || r.flight === ekFlight);
+  }
+
+  // Drop internal helper fields for output
+  const departures = picked.map((r) => ({
+    flight: r.flight,
+    destination: r.destination,
+    scheduled: r.scheduled,
+    estimated: r.estimated,
+    status: r.status,
+    gate: r.gate,
+    terminal: r.terminal,
+    delayMin: r.delayMin,
+  }));
+
+  return {
+    departures,
+    url,
+    pageUrl: "https://www.heathrow.com/departures",
+    rawCount: data.length,
+  };
+}
+
+async function buildLhrBoard() {
+  const sources = [];
+  let departures = [];
+  let nearby = [];
+
+  try {
+    const h = await fetchHeathrowDepartures();
+    departures = h.departures;
+    sources.push({ name: "Heathrow departures (T3)", url: h.pageUrl });
+    sources.push({ name: "Heathrow pihub API", url: h.url });
+    console.log("LHR board departures", departures.length, "from", h.rawCount, "raw");
+  } catch (e) {
+    console.warn("Heathrow departures board failed:", e.message || e);
+  }
+
+  try {
+    const n = await fetchNearbyLhr();
+    nearby = n.nearby;
+    sources.push({ name: "adsb.lol near EGLL", url: n.url });
+    console.log("LHR nearby ADS-B", nearby.length);
+  } catch (e) {
+    console.warn("adsb.lol LHR nearby failed:", e.message || e);
+  }
+
+  return {
+    airport: "LHR",
+    terminal: "3",
+    updatedAt: new Date().toISOString(),
+    departures,
+    nearby,
+    sources,
+  };
+}
+
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const news = [];
@@ -594,6 +866,20 @@ async function main() {
     updatedAt: payload.updatedAt,
   };
   await writeFile(join(outDir, "position.json"), JSON.stringify(positionPayload, null, 2));
+
+  try {
+    const board = await buildLhrBoard();
+    await writeFile(join(outDir, "board.json"), JSON.stringify(board, null, 2));
+    console.log(
+      "board",
+      board.departures.length,
+      "departures,",
+      board.nearby.length,
+      "nearby"
+    );
+  } catch (e) {
+    console.warn("LHR board write failed:", e.message || e);
+  }
 
   console.log(
     "OK",

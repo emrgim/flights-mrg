@@ -1,6 +1,7 @@
 (function () {
   const STATUS_URL = "./status.json";
   const POSITION_URL = "./position.json";
+  const BOARD_URL = "./board.json";
   const REFRESH_MS = 45000;
   const POSITION_MS = 20000;
   const FALLBACK_NEWS = [
@@ -653,6 +654,147 @@
     document.title = code + padded + " · " + (d.airlineName || "Emirates") + " Flight Tracker";
   }
 
+
+  function fmtDelay(min) {
+    if (min == null || min === "" || !Number.isFinite(Number(min))) return "—";
+    const n = Math.round(Number(min));
+    if (n === 0) return "0";
+    if (n > 0) return "+" + n + "m";
+    return n + "m";
+  }
+
+  function paintBoard(board) {
+    board = board || {};
+    const deps = Array.isArray(board.departures) ? board.departures : [];
+    const nearby = Array.isArray(board.nearby) ? board.nearby : [];
+    const meta = document.getElementById("boardMeta");
+    if (meta) {
+      let when = "";
+      if (board.updatedAt) {
+        try {
+          when =
+            " · " +
+            new Intl.DateTimeFormat("en-GB", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+              timeZone: "Europe/London",
+            }).format(new Date(board.updatedAt)) +
+            " BST/GMT";
+        } catch (e) {
+          when = "";
+        }
+      }
+      meta.textContent =
+        "Terminal " +
+        (board.terminal || "3") +
+        " · " +
+        deps.length +
+        " departures · " +
+        nearby.length +
+        " nearby" +
+        when;
+    }
+    const body = document.getElementById("depBoardBody");
+    if (body) {
+      body.innerHTML = "";
+      if (!deps.length) {
+        body.innerHTML = '<tr><td colspan="7" class="muted">No departure rows (source offline or empty window).</td></tr>';
+      } else {
+        deps.forEach(function (r) {
+          const tr = document.createElement("tr");
+          const flight = String(r.flight || "");
+          if (/^EK0*30$/i.test(flight) || /^EK\s*30$/i.test(flight)) tr.classList.add("is-ek");
+          const delay = Number(r.delayMin);
+          const late = Number.isFinite(delay) && delay >= 15;
+          if (late || /delay/i.test(String(r.status || ""))) tr.classList.add("is-delayed");
+          const delayTd = fmtDelay(r.delayMin);
+          tr.innerHTML =
+            "<td><strong>" +
+            escapeHtml(flight || "—") +
+            "</strong></td>" +
+            '<td class="dest-cell">' +
+            escapeHtml(r.destination || "—") +
+            "</td>" +
+            "<td>" +
+            escapeHtml(r.scheduled || "—") +
+            "</td>" +
+            "<td>" +
+            escapeHtml(r.estimated || "—") +
+            "</td>" +
+            '<td class="status-cell">' +
+            escapeHtml(r.status || "—") +
+            "</td>" +
+            "<td>" +
+            escapeHtml(r.gate || "—") +
+            "</td>" +
+            '<td class="delay-cell' +
+            (late ? " is-late" : "") +
+            '">' +
+            escapeHtml(delayTd) +
+            "</td>";
+          body.appendChild(tr);
+        });
+      }
+    }
+    const nbody = document.getElementById("nearbyBoardBody");
+    if (nbody) {
+      nbody.innerHTML = "";
+      if (!nearby.length) {
+        nbody.innerHTML = '<tr><td colspan="5" class="muted">No ADS-B traffic in range.</td></tr>';
+      } else {
+        nearby.forEach(function (a) {
+          const tr = document.createElement("tr");
+          const alt =
+            a.onGround || a.altitude === 0
+              ? "GND"
+              : a.altitude != null
+                ? Math.round(Number(a.altitude)) + " ft"
+                : "—";
+          const gs = a.speed != null ? Math.round(Number(a.speed)) + " kt" : "—";
+          tr.innerHTML =
+            "<td>" +
+            escapeHtml(a.flight || "—") +
+            "</td>" +
+            "<td>" +
+            escapeHtml(a.registration || "—") +
+            "</td>" +
+            "<td>" +
+            escapeHtml(alt) +
+            "</td>" +
+            "<td>" +
+            escapeHtml(gs) +
+            "</td>" +
+            "<td>" +
+            (a.onGround ? "ground" : "airborne") +
+            "</td>";
+          nbody.appendChild(tr);
+        });
+      }
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  async function loadBoard() {
+    try {
+      const res = await fetch(BOARD_URL + "?t=" + Date.now(), { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      paintBoard(await res.json());
+    } catch (e) {
+      paintBoard({ departures: [], nearby: [], terminal: "3" });
+      const meta = document.getElementById("boardMeta");
+      if (meta) meta.textContent = "Terminal 3 · board feed offline";
+    }
+  }
+
+
   async function load() {
     try {
       const res = await fetch(STATUS_URL + "?t=" + Date.now(), { cache: "no-store" });
@@ -680,7 +822,9 @@
   // Paint fallback immediately so the card is never empty while fetch runs
   startDepNews({ departure: { airport: "LHR" }, news: FALLBACK_NEWS });
   load();
+  loadBoard();
   setInterval(load, REFRESH_MS);
+  setInterval(loadBoard, REFRESH_MS);
 
   async function loadPositionOnly() {
     try {
