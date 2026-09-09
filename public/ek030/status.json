@@ -4,7 +4,7 @@
   "airlineName": "Emirates",
   "flightId": 1407221493,
   "status": "Scheduled",
-  "statusDetail": "On time",
+  "statusDetail": "Delayed by 20m",
   "statusCode": "S",
   "date": "2026-09-09",
   "departure": {
@@ -14,7 +14,7 @@
     "airport": "LHR",
     "dateLabel": "09-Sep-2026",
     "scheduled": "16:50",
-    "estimated": "17:00",
+    "estimated": "17:10",
     "actual": null,
     "timezoneLabel": "BST",
     "timezone": "Europe/London",
@@ -28,7 +28,7 @@
     "airport": "DXB",
     "dateLabel": "10-Sep-2026",
     "scheduled": "02:55",
-    "estimated": "02:51",
+    "estimated": "03:01",
     "actual": null,
     "timezoneLabel": "+04",
     "timezone": "Asia/Dubai",
@@ -36,8 +36,8 @@
     "gate": null
   },
   "tracking": {
-    "available": false,
-    "message": "Assigned hull A6-EOW — waiting for ADS-B / aircraft not yet transmitting."
+    "available": true,
+    "message": "Live ADS-B on hull A6-EVS (airframe position; may not yet be operating EK030)."
   },
   "codeshares": [
     {
@@ -53,9 +53,18 @@
     "code": "388",
     "description": "Airbus A380-800 Passenger",
     "duration": "7h 5m",
-    "registration": "A6-EOW",
-    "icao24": "8963f4",
-    "position": null
+    "registration": "A6-EVS",
+    "icao24": "89655f",
+    "position": {
+      "lat": 51.474838,
+      "lon": -0.433014,
+      "altitude": 0,
+      "heading": 50.62,
+      "speed": 0.1,
+      "seenAt": "2026-09-09T16:06:51.698Z",
+      "onGround": true,
+      "source": "adsb.lol-hex"
+    }
   },
   "otherDays": [
     {
@@ -169,7 +178,7 @@
       "source": "Heathrow Airport",
       "airport": "LHR",
       "summary": "NATS technical issue resolved Tuesday evening. Flights operating today; knock-on disruption expected as airlines reposition aircraft and crew. Check with airline before travelling.",
-      "fetchedAt": "2026-09-09T15:33:46.506Z"
+      "fetchedAt": "2026-09-09T16:06:57.676Z"
     },
     {
       "title": "UK flights resume but airports warn of ongoing disruption",
@@ -177,7 +186,7 @@
       "source": "Reuters",
       "airport": "LHR",
       "summary": "British airports resumed flights early Wednesday after NATS resolved Tuesday's air-traffic failure; hubs warn recovery will take time with aircraft and crews out of position.",
-      "fetchedAt": "2026-09-09T15:33:46.506Z"
+      "fetchedAt": "2026-09-09T16:06:57.676Z"
     },
     {
       "title": "Hundreds more Heathrow flights cancelled as network recovers",
@@ -185,7 +194,7 @@
       "source": "Evening Standard",
       "airport": "LHR",
       "summary": "Wednesday knock-on cancellations continue at Heathrow after NATS resolved the Tuesday outage; passengers advised to check with their airline before travelling.",
-      "fetchedAt": "2026-09-09T15:33:46.506Z"
+      "fetchedAt": "2026-09-09T16:06:57.676Z"
     },
     {
       "title": "Dubai/Abu Dhabi delays after Heathrow outage",
@@ -193,10 +202,10 @@
       "source": "The National",
       "airport": "LHR",
       "summary": "EK030 from Heathrow listed among Emirates services running behind schedule amid knock-on UK disruption.",
-      "fetchedAt": "2026-09-09T15:33:46.506Z"
+      "fetchedAt": "2026-09-09T16:06:57.676Z"
     }
   ],
-  "updatedAt": "2026-09-09T15:34:08.691Z",
+  "updatedAt": "2026-09-09T16:07:10.856Z",
   "sources": [
     {
       "name": "FlightStats",
@@ -213,6 +222,10 @@
     {
       "name": "Flightradar24",
       "url": "https://www.flightradar24.com/data/flights/ek30"
+    },
+    {
+      "name": "adsb.lol",
+      "url": "https://api.adsb.lol/"
     }
   ]
 }

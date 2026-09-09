@@ -1,6 +1,15 @@
 {
-  "registration": "A6-EOW",
-  "icao24": "8963f4",
-  "position": null,
-  "updatedAt": "2026-09-09T15:34:08.691Z"
+  "registration": "A6-EVS",
+  "icao24": "89655f",
+  "position": {
+    "lat": 51.474838,
+    "lon": -0.433014,
+    "altitude": 0,
+    "heading": 50.62,
+    "speed": 0.1,
+    "seenAt": "2026-09-09T16:06:51.698Z",
+    "onGround": true,
+    "source": "adsb.lol-hex"
+  },
+  "updatedAt": "2026-09-09T16:07:10.856Z"
 }

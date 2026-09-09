@@ -3,7 +3,7 @@
   "terminal": "3",
   "date": "2026-09-09",
   "timezone": "Europe/London",
-  "updatedAt": "2026-09-09T15:34:11.817Z",
+  "updatedAt": "2026-09-09T16:07:15.045Z",
   "departures": [
     {
       "flight": "EK030",
@@ -11,43 +11,10 @@
       "scheduled": "16:50",
       "estimated": null,
       "scheduledDate": "2026-09-09",
-      "status": "Boarding",
+      "status": "Gate closed",
       "gate": "1",
       "terminal": "3",
       "delayMin": null
-    },
-    {
-      "flight": "DL037",
-      "destination": "Atlanta · ATL",
-      "scheduled": "15:15",
-      "estimated": "15:54",
-      "scheduledDate": "2026-09-09",
-      "status": "Departed 15:54",
-      "gate": "16",
-      "terminal": "3",
-      "delayMin": 39
-    },
-    {
-      "flight": "BA223",
-      "destination": "Nashville · BNA",
-      "scheduled": "15:15",
-      "estimated": "15:55",
-      "scheduledDate": "2026-09-09",
-      "status": "Departed 15:55",
-      "gate": "24",
-      "terminal": "3",
-      "delayMin": 40
-    },
-    {
-      "flight": "AA9608",
-      "destination": "Miami · MIA",
-      "scheduled": "15:30",
-      "estimated": "16:32",
-      "scheduledDate": "2026-09-09",
-      "status": "Taxied 16:32",
-      "gate": "40",
-      "terminal": "3",
-      "delayMin": 62
     },
     {
       "flight": "VS316",
@@ -64,12 +31,12 @@
       "flight": "VS021",
       "destination": "Washington · IAD",
       "scheduled": "15:50",
-      "estimated": "16:23",
+      "estimated": "16:44",
       "scheduledDate": "2026-09-09",
-      "status": "Taxied 16:23",
+      "status": "Departed 16:44",
       "gate": "32",
       "terminal": "3",
-      "delayMin": 33
+      "delayMin": 54
     },
     {
       "flight": "VS153",
@@ -86,45 +53,78 @@
       "flight": "VS157",
       "destination": "Boston · BOS",
       "scheduled": "16:05",
-      "estimated": "16:13",
+      "estimated": "16:41",
       "scheduledDate": "2026-09-09",
-      "status": "Taxied 16:13",
+      "status": "Departed 16:41",
       "gate": "17",
       "terminal": "3",
-      "delayMin": 8
+      "delayMin": 36
+    },
+    {
+      "flight": "BA227",
+      "destination": "Atlanta · ATL",
+      "scheduled": "16:10",
+      "estimated": "16:57",
+      "scheduledDate": "2026-09-09",
+      "status": "Departed 16:57",
+      "gate": "36",
+      "terminal": "3",
+      "delayMin": 47
+    },
+    {
+      "flight": "AY1336",
+      "destination": "Helsinki · HEL",
+      "scheduled": "16:10",
+      "estimated": "16:50",
+      "scheduledDate": "2026-09-09",
+      "status": "Taxied 16:50",
+      "gate": "11",
+      "terminal": "3",
+      "delayMin": 40
     },
     {
       "flight": "BA289",
       "destination": "Phoenix · PHX",
       "scheduled": "16:10",
-      "estimated": "16:29",
+      "estimated": "16:52",
       "scheduledDate": "2026-09-09",
-      "status": "Taxied 16:29",
+      "status": "Departed 16:52",
       "gate": "27",
       "terminal": "3",
-      "delayMin": 19
+      "delayMin": 42
     },
     {
       "flight": "DL004",
       "destination": "New York · JFK",
       "scheduled": "16:20",
-      "estimated": "16:20",
+      "estimated": "16:42",
       "scheduledDate": "2026-09-09",
-      "status": "Taxied 16:20",
+      "status": "Departed 16:42",
       "gate": "20",
       "terminal": "3",
-      "delayMin": 0
+      "delayMin": 22
     },
     {
-      "flight": "BA892",
-      "destination": "Sofia · SOF",
-      "scheduled": "15:10",
-      "estimated": null,
+      "flight": "AA9609",
+      "destination": "New York · JFK",
+      "scheduled": "16:30",
+      "estimated": "17:02",
       "scheduledDate": "2026-09-09",
-      "status": "Cancelled",
-      "gate": null,
+      "status": "Taxied 17:02",
+      "gate": "42",
       "terminal": "3",
-      "delayMin": null
+      "delayMin": 32
+    },
+    {
+      "flight": "RJ112",
+      "destination": "Amman · AMM",
+      "scheduled": "17:05",
+      "estimated": "17:04",
+      "scheduledDate": "2026-09-09",
+      "status": "Taxied 17:04",
+      "gate": "23",
+      "terminal": "3",
+      "delayMin": -1
     },
     {
       "flight": "CX239",
@@ -141,34 +141,12 @@
       "flight": "BA408",
       "destination": "Valencia · VLC",
       "scheduled": "16:05",
-      "estimated": "18:26",
+      "estimated": "18:39",
       "scheduledDate": "2026-09-09",
-      "status": "Delayed 18:26",
+      "status": "Delayed 18:39",
       "gate": "24",
       "terminal": "3",
-      "delayMin": 141
-    },
-    {
-      "flight": "BA227",
-      "destination": "Atlanta · ATL",
-      "scheduled": "16:10",
-      "estimated": null,
-      "scheduledDate": "2026-09-09",
-      "status": "Gate closed",
-      "gate": "36",
-      "terminal": "3",
-      "delayMin": null
-    },
-    {
-      "flight": "AY1336",
-      "destination": "Helsinki · HEL",
-      "scheduled": "16:10",
-      "estimated": null,
-      "scheduledDate": "2026-09-09",
-      "status": "Last call",
-      "gate": "11",
-      "terminal": "3",
-      "delayMin": null
+      "delayMin": 154
     },
     {
       "flight": "AA081",
@@ -176,19 +154,8 @@
       "scheduled": "16:25",
       "estimated": null,
       "scheduledDate": "2026-09-09",
-      "status": "Boarding",
+      "status": "Gate closed",
       "gate": "35",
-      "terminal": "3",
-      "delayMin": null
-    },
-    {
-      "flight": "AA9609",
-      "destination": "New York · JFK",
-      "scheduled": "16:30",
-      "estimated": null,
-      "scheduledDate": "2026-09-09",
-      "status": "Boarding",
-      "gate": "42",
       "terminal": "3",
       "delayMin": null
     },
@@ -198,7 +165,7 @@
       "scheduled": "16:55",
       "estimated": null,
       "scheduledDate": "2026-09-09",
-      "status": "Gate open",
+      "status": "Last call",
       "gate": "18",
       "terminal": "3",
       "delayMin": null
@@ -209,7 +176,7 @@
       "scheduled": "16:55",
       "estimated": null,
       "scheduledDate": "2026-09-09",
-      "status": "Gate open",
+      "status": "Gate closed",
       "gate": "24",
       "terminal": "3",
       "delayMin": null
@@ -237,23 +204,12 @@
       "delayMin": 220
     },
     {
-      "flight": "RJ112",
-      "destination": "Amman · AMM",
-      "scheduled": "17:05",
-      "estimated": null,
-      "scheduledDate": "2026-09-09",
-      "status": "Gate open",
-      "gate": "23",
-      "terminal": "3",
-      "delayMin": null
-    },
-    {
       "flight": "VS155",
       "destination": "Las Vegas · LAS",
       "scheduled": "17:25",
       "estimated": null,
       "scheduledDate": "2026-09-09",
-      "status": "Gate open",
+      "status": "Gate closed",
       "gate": "30",
       "terminal": "3",
       "delayMin": null
@@ -275,7 +231,7 @@
       "scheduled": "17:45",
       "estimated": null,
       "scheduledDate": "2026-09-09",
-      "status": "Gate open",
+      "status": "Last call",
       "gate": "16",
       "terminal": "3",
       "delayMin": null
@@ -284,23 +240,23 @@
       "flight": "VS147",
       "destination": "Toronto · YYZ",
       "scheduled": "17:50",
-      "estimated": "17:50",
+      "estimated": null,
       "scheduledDate": "2026-09-09",
-      "status": "On time 17:50",
-      "gate": null,
+      "status": "Boarding",
+      "gate": "19",
       "terminal": "3",
-      "delayMin": 0
+      "delayMin": null
     },
     {
       "flight": "VS023",
       "destination": "Los Angeles · LAX",
       "scheduled": "17:55",
-      "estimated": "17:55",
+      "estimated": null,
       "scheduledDate": "2026-09-09",
-      "status": "On time 17:55",
-      "gate": null,
+      "status": "Boarding",
+      "gate": "13",
       "terminal": "3",
-      "delayMin": 0
+      "delayMin": null
     },
     {
       "flight": "JJ9455",
@@ -317,23 +273,23 @@
       "flight": "AA141",
       "destination": "New York · JFK",
       "scheduled": "18:05",
-      "estimated": "18:05",
+      "estimated": null,
       "scheduledDate": "2026-09-09",
-      "status": "On time 18:05",
+      "status": "Gate open",
       "gate": "25",
       "terminal": "3",
-      "delayMin": 0
+      "delayMin": null
     },
     {
       "flight": "AY1338",
       "destination": "Helsinki · HEL",
       "scheduled": "18:10",
-      "estimated": "18:10",
+      "estimated": "18:25",
       "scheduledDate": "2026-09-09",
-      "status": "On time 18:10",
+      "status": "Delayed 18:25",
       "gate": null,
       "terminal": "3",
-      "delayMin": 0
+      "delayMin": 15
     },
     {
       "flight": "CX250",
@@ -361,12 +317,12 @@
       "flight": "BA728",
       "destination": "Vienna · VIE",
       "scheduled": "19:05",
-      "estimated": "19:46",
+      "estimated": "19:05",
       "scheduledDate": "2026-09-09",
-      "status": "Delayed 19:46",
+      "status": "On time 19:05",
       "gate": "24",
       "terminal": "3",
-      "delayMin": 41
+      "delayMin": 0
     },
     {
       "flight": "JL044",
@@ -386,7 +342,7 @@
       "estimated": "19:40",
       "scheduledDate": "2026-09-09",
       "status": "On time 19:40",
-      "gate": null,
+      "gate": "7",
       "terminal": "3",
       "delayMin": 0
     },
@@ -504,12 +460,12 @@
       "flight": "BA858",
       "destination": "Prague · PRG",
       "scheduled": "20:35",
-      "estimated": "21:40",
+      "estimated": "21:57",
       "scheduledDate": "2026-09-09",
-      "status": "Delayed 21:40",
+      "status": "Delayed 21:57",
       "gate": null,
       "terminal": "3",
-      "delayMin": 65
+      "delayMin": 82
     },
     {
       "flight": "EK004",
@@ -609,238 +565,282 @@
       "gate": null,
       "terminal": "3",
       "delayMin": 0
+    },
+    {
+      "flight": "GS7966",
+      "destination": "Chongqing · CKG",
+      "scheduled": "22:00",
+      "estimated": "22:00",
+      "scheduledDate": "2026-09-09",
+      "status": "On time 22:00",
+      "gate": null,
+      "terminal": "3",
+      "delayMin": 0
+    },
+    {
+      "flight": "JD432",
+      "destination": "Qingdao · TAO",
+      "scheduled": "22:00",
+      "estimated": "22:00",
+      "scheduledDate": "2026-09-09",
+      "status": "On time 22:00",
+      "gate": null,
+      "terminal": "3",
+      "delayMin": 0
+    },
+    {
+      "flight": "HU7912",
+      "destination": "Haikou · HAK",
+      "scheduled": "22:00",
+      "estimated": "22:00",
+      "scheduledDate": "2026-09-09",
+      "status": "On time 22:00",
+      "gate": null,
+      "terminal": "3",
+      "delayMin": 0
+    },
+    {
+      "flight": "EK006",
+      "destination": "Dubai · DXB",
+      "scheduled": "22:15",
+      "estimated": "22:15",
+      "scheduledDate": "2026-09-09",
+      "status": "On time 22:15",
+      "gate": null,
+      "terminal": "3",
+      "delayMin": 0
     }
   ],
   "nearby": [
     {
-      "flight": "AMX007",
-      "registration": "XA-ADH",
-      "altitude": 10250,
-      "speed": 270,
-      "onGround": false
-    },
-    {
-      "flight": "BAW21V",
-      "registration": "G-YMMH",
-      "altitude": 250,
-      "speed": 182,
-      "onGround": false
-    },
-    {
-      "flight": "BAW381",
-      "registration": "G-EUYC",
-      "altitude": 7425,
+      "flight": "BAW118",
+      "registration": "G-ZBJA",
+      "altitude": 7525,
       "speed": 240,
       "onGround": false
     },
     {
-      "flight": "BAW59ZD",
-      "registration": "G-EUUU",
-      "altitude": 8100,
-      "speed": 260,
+      "flight": "BAW171",
+      "registration": "G-ZBKE",
+      "altitude": 2325,
+      "speed": 234,
       "onGround": false
     },
     {
-      "flight": "BAW675",
-      "registration": "G-EUYS",
-      "altitude": 1775,
-      "speed": 161,
+      "flight": "BEL6RA",
+      "registration": "OO-SBF",
+      "altitude": 6500,
+      "speed": 239,
       "onGround": false
     },
     {
-      "flight": "CAL081",
-      "registration": "B-18912",
-      "altitude": 3600,
-      "speed": 183,
+      "flight": "CCA937",
+      "registration": "B-2047",
+      "altitude": 925,
+      "speed": 152,
       "onGround": false
     },
     {
-      "flight": "DLH4JK",
-      "registration": "D-AINQ",
-      "altitude": 6125,
-      "speed": 227,
+      "flight": "ETD1VTA",
+      "registration": "A6-APJ",
+      "altitude": 2400,
+      "speed": 172,
       "onGround": false
     },
     {
-      "flight": "EZY642P",
-      "registration": "G-EZTK",
-      "altitude": 20025,
-      "speed": 353,
+      "flight": "EXS1898",
+      "registration": "G-DRTK",
+      "altitude": 25275,
+      "speed": 337,
       "onGround": false
     },
     {
-      "flight": "FFC011",
-      "registration": "G-BGIB",
-      "altitude": 1625,
-      "speed": 89,
+      "flight": "GACGZ",
+      "registration": "G-ACGZ",
+      "altitude": 1450,
+      "speed": 72,
       "onGround": false
     },
     {
-      "flight": "GCCZV",
-      "registration": "G-CCZV",
-      "altitude": 1125,
-      "speed": 77,
+      "flight": "GBOBA",
+      "registration": "G-BOBA",
+      "altitude": 1800,
+      "speed": 62,
       "onGround": false
     },
     {
-      "flight": "GCIPY",
-      "registration": "G-CIPY",
-      "altitude": 700,
-      "speed": 68,
+      "flight": "GBSDP",
+      "registration": "G-BSDP",
+      "altitude": 1875,
+      "speed": 85,
       "onGround": false
     },
     {
-      "flight": "GDVIO",
-      "registration": "G-DVIO",
-      "altitude": 1075,
-      "speed": 133,
+      "flight": "GBTIM",
+      "registration": "G-BTIM",
+      "altitude": 675,
+      "speed": 96,
       "onGround": false
     },
     {
       "flight": "GENTW",
       "registration": "G-ENTW",
-      "altitude": 1775,
-      "speed": 96,
+      "altitude": 1250,
+      "speed": 103,
       "onGround": false
     },
     {
-      "flight": "GFLOE",
-      "registration": "G-FLOE",
-      "altitude": 1400,
-      "speed": 100,
+      "flight": "GKCIN",
+      "registration": "G-KCIN",
+      "altitude": 825,
+      "speed": 79,
       "onGround": false
     },
     {
-      "flight": "GSHBA",
-      "registration": "G-SHBA",
-      "altitude": 175,
-      "speed": 61,
+      "flight": "GMOTI",
+      "registration": "G-MOTI",
+      "altitude": 1975,
+      "speed": 132,
       "onGround": false
     },
     {
-      "flight": "GTJPK",
-      "registration": "G-TJPK",
-      "altitude": 125,
-      "speed": 23,
+      "flight": "GOWAR",
+      "registration": "G-OWAR",
+      "altitude": 200,
+      "speed": 70,
       "onGround": false
     },
     {
-      "flight": "GVERO",
-      "registration": "G-VERO",
-      "altitude": 2075,
-      "speed": 207,
+      "flight": "GXITE",
+      "registration": "G-XITE",
+      "altitude": 800,
+      "speed": 109,
       "onGround": false
     },
     {
-      "flight": "IBE07AA",
-      "registration": "EC-NZQ",
-      "altitude": 7000,
-      "speed": 249,
+      "flight": "RUK8554",
+      "registration": "G-RUKA",
+      "altitude": 17475,
+      "speed": 354,
       "onGround": false
     },
     {
-      "flight": "IBE07ZB",
-      "registration": "EC-NTA",
-      "altitude": 4525,
-      "speed": 261,
+      "flight": "RYR1VW",
+      "registration": "9H-QCW",
+      "altitude": 36675,
+      "speed": 508,
       "onGround": false
     },
     {
-      "flight": "ICE453",
-      "registration": "TF-IAA",
-      "altitude": 6350,
-      "speed": 268,
+      "flight": "RYR24LW",
+      "registration": "EI-EXF",
+      "altitude": 22000,
+      "speed": 439,
       "onGround": false
     },
     {
-      "flight": "KLM63T",
-      "registration": "PH-NXH",
-      "altitude": 850,
-      "speed": 138,
+      "flight": "RYR7JY",
+      "registration": "9H-QCK",
+      "altitude": 18000,
+      "speed": 375,
       "onGround": false
     },
     {
-      "flight": "MIKEY",
-      "registration": "M-IKEY",
-      "altitude": 1300,
-      "speed": 75,
+      "flight": "SPGHU",
+      "registration": null,
+      "altitude": 1425,
+      "speed": 69,
       "onGround": false
     },
     {
-      "flight": "N888TY",
-      "registration": "N888TY",
-      "altitude": 29000,
-      "speed": 475,
+      "flight": "SVA122",
+      "registration": "HZ-AK38",
+      "altitude": 10425,
+      "speed": 309,
       "onGround": false
     },
     {
-      "flight": "NJE725K",
-      "registration": "CS-CHM",
-      "altitude": 39000,
-      "speed": 507,
+      "flight": "SXN17",
+      "registration": "G-ISPM",
+      "altitude": 1800,
+      "speed": 150,
       "onGround": false
     },
     {
-      "flight": "QTR21L",
-      "registration": "A7-BBG",
-      "altitude": 3250,
-      "speed": 191,
+      "flight": "T7LSS",
+      "registration": "T7-LSS",
+      "altitude": 100,
+      "speed": 15,
       "onGround": false
     },
     {
-      "flight": "SWR59K",
-      "registration": "HB-JCB",
-      "altitude": 2850,
-      "speed": 162,
+      "flight": "TLJ517M",
+      "registration": "F-HGSA",
+      "altitude": 19350,
+      "speed": 316,
       "onGround": false
     },
     {
-      "flight": "SXN42",
-      "registration": "G-DOUN",
-      "altitude": 1400,
-      "speed": 78,
+      "flight": "UAE5",
+      "registration": "A6-EOZ",
+      "altitude": 3875,
+      "speed": 182,
+      "onGround": false
+    },
+    {
+      "flight": "VJT449",
+      "registration": "9H-VCO",
+      "altitude": 10975,
+      "speed": 283,
       "onGround": false
     },
     {
       "flight": null,
-      "registration": "G-YMMR",
-      "altitude": 0,
-      "speed": 5,
-      "onGround": true
-    },
-    {
-      "flight": null,
-      "registration": "TWR",
-      "altitude": 0,
-      "speed": 0,
-      "onGround": true
-    },
-    {
-      "flight": null,
-      "registration": "TWR",
+      "registration": "G-VIIV",
       "altitude": 0,
       "speed": 0,
       "onGround": true
     },
     {
       "flight": null,
-      "registration": "G-YMMP",
+      "registration": "G-VIIC",
       "altitude": 0,
-      "speed": 5,
+      "speed": 6,
       "onGround": true
     },
     {
       "flight": null,
       "registration": "G-STBK",
       "altitude": 0,
+      "speed": 4,
+      "onGround": true
+    },
+    {
+      "flight": null,
+      "registration": "TWR",
+      "altitude": 0,
       "speed": 0,
       "onGround": true
     },
     {
-      "flight": "BAW187",
-      "registration": "G-ZBJK",
+      "flight": null,
+      "registration": "TWR",
       "altitude": 0,
-      "speed": 1,
+      "speed": 0,
+      "onGround": true
+    },
+    {
+      "flight": "AAL9609",
+      "registration": "N717AN",
+      "altitude": 0,
+      "speed": 0,
+      "onGround": true
+    },
+    {
+      "flight": "BAW11TC",
+      "registration": "G-ZBJG",
+      "altitude": 0,
+      "speed": 11,
       "onGround": true
     },
     {
@@ -851,45 +851,45 @@
       "onGround": true
     },
     {
-      "flight": "BAW225Y",
-      "registration": "G-ZBJE",
+      "flight": "BAW329",
+      "registration": "G-EUPR",
       "altitude": 0,
-      "speed": 2,
+      "speed": 11,
       "onGround": true
     },
     {
-      "flight": "BAW383",
-      "registration": "G-DBCF",
-      "altitude": 0,
-      "speed": 4,
-      "onGround": true
-    },
-    {
-      "flight": "BAW528",
-      "registration": "G-TTNS",
+      "flight": "BAW332",
+      "registration": "G-EUUL",
       "altitude": 0,
       "speed": 9,
       "onGround": true
     },
     {
-      "flight": "BAW575",
-      "registration": "G-EUYX",
+      "flight": "BAW347N",
+      "registration": "G-TTSA",
       "altitude": 0,
-      "speed": 12,
+      "speed": 7,
       "onGround": true
     },
     {
-      "flight": "BAW578",
-      "registration": "G-EUPU",
+      "flight": "BAW387",
+      "registration": "G-EUPK",
       "altitude": 0,
-      "speed": 17,
+      "speed": 0,
       "onGround": true
     },
     {
-      "flight": "CCA855D",
-      "registration": "B-2046",
+      "flight": "BAW49",
+      "registration": "G-STBO",
       "altitude": 0,
-      "speed": 8,
+      "speed": 0,
+      "onGround": true
+    },
+    {
+      "flight": "BAW59ZD",
+      "registration": "G-EUUU",
+      "altitude": 0,
+      "speed": 11,
       "onGround": true
     }
   ],
