@@ -24,6 +24,60 @@
   const LHR = [51.47, -0.4543];
   const DXB = [25.2532, 55.3657];
 
+  let lastUpdatedAt = null;
+  let latestTickTimer = null;
+
+  function fmtLatestUpdate(iso) {
+    if (!iso) return "Latest update —";
+    const then = new Date(iso);
+    if (Number.isNaN(then.getTime())) return "Latest update —";
+    const now = Date.now();
+    const diffMs = Math.max(0, now - then.getTime());
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 60) {
+      const m = Math.max(1, diffMin || (diffMs < 15000 ? 0 : 1));
+      if (m <= 0) return "Latest update · adesso";
+      if (m === 1) return "Latest update · 1 minuto fa";
+      return "Latest update · " + m + " minuti fa";
+    }
+    try {
+      const clock = new Intl.DateTimeFormat("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "Asia/Dubai",
+      }).format(then);
+      return "Latest update · " + clock;
+    } catch (e) {
+      return "Latest update · " + then.toISOString();
+    }
+  }
+
+  function paintLatestUpdate(iso) {
+    if (iso) lastUpdatedAt = iso;
+    const el = document.getElementById("latestUpdate");
+    if (!el) return;
+    el.textContent = fmtLatestUpdate(lastUpdatedAt);
+    if (lastUpdatedAt) {
+      try {
+        el.title = new Intl.DateTimeFormat("en-GB", {
+          dateStyle: "medium",
+          timeStyle: "medium",
+          timeZone: "Asia/Dubai",
+        }).format(new Date(lastUpdatedAt)) + " GST";
+      } catch (e) {
+        el.title = String(lastUpdatedAt);
+      }
+    } else {
+      el.title = "";
+    }
+    if (!latestTickTimer) {
+      latestTickTimer = setInterval(function () {
+        paintLatestUpdate(null);
+      }, 30000);
+    }
+  }
+
   let map = null;
   let planeMarker = null;
   let routeLine = null;
@@ -459,6 +513,7 @@
     });
     if (days.length) showDay(selected);
 
+    paintLatestUpdate(d.updatedAt || null);
     try {
       $("updated").textContent =
         "Updated " +

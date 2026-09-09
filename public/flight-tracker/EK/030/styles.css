@@ -35,12 +35,27 @@ a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
   padding-bottom: 10px;
   border-bottom: 1px dashed var(--line);
 }
+.hero-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
 .eyebrow {
   margin: 0;
   font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
+}
+.latest-update {
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  text-align: right;
+  white-space: nowrap;
+  flex: 0 1 auto;
 }
 .hero h1 {
   margin: 0.35rem 0 0;
