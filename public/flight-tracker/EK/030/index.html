@@ -9,7 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./styles.css?v=096dd28" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="./styles.css?v=live-map1" />
 </head>
 <body>
   <main class="page">
@@ -97,12 +98,14 @@
       </article>
     </section>
 
-    <section class="panel">
-      <h2 class="panel-title">Flight Tracker</h2>
-      <div class="tracker">
-        <p class="tracker-title">Positional Tracking Not Available Yet</p>
-        <p class="tracker-msg" id="trackerMsg">Tracking will begin after departure</p>
+    <section class="panel map-panel" aria-labelledby="map-heading">
+      <h2 id="map-heading" class="panel-title">Live aircraft map</h2>
+      <div class="map-meta">
+        <p class="map-reg" id="mapReg">Hull —</p>
+        <p class="map-seen" id="mapSeen">Waiting for ADS-B / aircraft not yet assigned</p>
       </div>
+      <div id="map" class="map" role="img" aria-label="OpenStreetMap aircraft position"></div>
+      <p class="tracker-msg" id="trackerMsg">Tracking will begin after departure</p>
     </section>
 
     <section class="panel">
@@ -131,6 +134,7 @@
       <p class="muted" id="sources"></p>
     </footer>
   </main>
-  <script src="./app.js?v=096dd28"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="./app.js?v=live-map1"></script>
 </body>
 </html>

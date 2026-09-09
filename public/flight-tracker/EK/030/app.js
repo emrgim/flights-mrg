@@ -1,6 +1,6 @@
 (function () {
   const STATUS_URL = "./status.json";
-  const REFRESH_MS = 60000;
+  const REFRESH_MS = 45000;
   const FALLBACK_NEWS = [
     {
       title: "NATS air traffic control technical issue — Heathrow",
@@ -19,6 +19,165 @@
         "EK030 from Heathrow listed among Emirates services running behind schedule amid UK ATC disruption.",
     },
   ];
+
+
+  const LHR = [51.47, -0.4543];
+  const DXB = [25.2532, 55.3657];
+
+  let map = null;
+  let planeMarker = null;
+  let routeLine = null;
+  let lastPosKey = "";
+
+  function planeSvg(heading) {
+    // B/W nose-up airplane; CSS rotates via heading
+    return (
+      '<div class="plane-marker" style="transform:rotate(' +
+      (Number(heading) || 0) +
+      'deg)">' +
+      '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      '<path fill="#111" stroke="#fff" stroke-width="1.2" stroke-linejoin="round" ' +
+      'd="M12 2 L14.2 9.5 L21 11 L14.2 12.2 L12 22 L9.8 12.2 L3 11 L9.8 9.5 Z"/>' +
+      "</svg></div>"
+    );
+  }
+
+  function ensureMap() {
+    if (map || typeof L === "undefined") return map;
+    const el = document.getElementById("map");
+    if (!el) return null;
+    map = L.map(el, {
+      zoomControl: true,
+      attributionControl: true,
+      scrollWheelZoom: false,
+    });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+    routeLine = L.polyline([LHR, DXB], {
+      color: "#111",
+      weight: 1.5,
+      opacity: 0.45,
+      dashArray: "4 6",
+    }).addTo(map);
+    map.fitBounds(L.latLngBounds(LHR, DXB).pad(0.18));
+    setTimeout(function () {
+      try {
+        map.invalidateSize();
+      } catch (e) {}
+    }, 80);
+    return map;
+  }
+
+  function fmtSeen(iso) {
+    if (!iso) return "";
+    try {
+      return new Intl.DateTimeFormat("en-GB", {
+        timeStyle: "medium",
+        timeZone: "Asia/Dubai",
+      }).format(new Date(iso)) + " GST";
+    } catch (e) {
+      return String(iso);
+    }
+  }
+
+  function updateMap(d) {
+    d = d || {};
+    const ac = d.aircraft || {};
+    const pos = ac.position || null;
+    const reg = ac.registration || null;
+    const m = ensureMap();
+
+    const regEl = document.getElementById("mapReg");
+    const seenEl = document.getElementById("mapSeen");
+    if (regEl) {
+      regEl.textContent = reg
+        ? "Hull " + reg + (ac.icao24 ? " · " + String(ac.icao24).toUpperCase() : "")
+        : "Hull not yet assigned";
+    }
+
+    if (!m) {
+      if (seenEl) seenEl.textContent = "Map library unavailable";
+      return;
+    }
+
+    if (!pos || !Number.isFinite(Number(pos.lat)) || !Number.isFinite(Number(pos.lon))) {
+      if (seenEl) {
+        seenEl.textContent = reg
+          ? "Waiting for ADS-B / aircraft not yet transmitting"
+          : "Waiting for ADS-B / aircraft not yet assigned";
+      }
+      if (planeMarker) {
+        try {
+          m.removeLayer(planeMarker);
+        } catch (e) {}
+        planeMarker = null;
+        lastPosKey = "";
+      }
+      if (routeLine) {
+        try {
+          m.fitBounds(L.latLngBounds(LHR, DXB).pad(0.18));
+        } catch (e) {}
+      } else {
+        m.setView(LHR, 5);
+      }
+      return;
+    }
+
+    const lat = Number(pos.lat);
+    const lon = Number(pos.lon);
+    const heading = Number(pos.heading) || 0;
+    const key = [lat.toFixed(4), lon.toFixed(4), heading.toFixed(0), reg || ""].join("|");
+
+    const bits = [];
+    if (pos.onGround) bits.push("on ground");
+    else if (pos.altitude != null) bits.push(Math.round(pos.altitude) + " ft");
+    if (pos.speed != null) bits.push(Math.round(pos.speed) + " kt");
+    if (pos.source) bits.push(pos.source);
+    if (pos.seenAt) bits.push("seen " + fmtSeen(pos.seenAt));
+    if (seenEl) seenEl.textContent = bits.join(" · ") || "Live position";
+
+    const icon = L.divIcon({
+      className: "plane-icon",
+      html: planeSvg(heading),
+      iconSize: [28, 28],
+      iconAnchor: [14, 14],
+    });
+
+    if (!planeMarker) {
+      planeMarker = L.marker([lat, lon], { icon: icon, interactive: true }).addTo(m);
+      if (reg) {
+        planeMarker.bindTooltip(reg, {
+          permanent: true,
+          direction: "right",
+          offset: [14, 0],
+          className: "plane-label",
+        });
+      }
+    } else if (key !== lastPosKey) {
+      planeMarker.setLatLng([lat, lon]);
+      planeMarker.setIcon(icon);
+      if (reg) {
+        planeMarker.bindTooltip(reg, {
+          permanent: true,
+          direction: "right",
+          offset: [14, 0],
+          className: "plane-label",
+        });
+      }
+    }
+    lastPosKey = key;
+
+    try {
+      const z = m.getZoom();
+      if (z < 4 || z > 10) m.setView([lat, lon], 6, { animate: false });
+      else m.panTo([lat, lon], { animate: true });
+    } catch (e) {
+      m.setView([lat, lon], 6);
+    }
+  }
 
   const $ = (id) => {
     const el = document.getElementById(id);
@@ -220,7 +379,8 @@
     }
 
     const ac = d.aircraft || {};
-    $("aircraft").textContent = [ac.code, ac.description].filter(Boolean).join(" · ") || "—";
+    $("aircraft").textContent =
+      [ac.registration, ac.code, ac.description].filter(Boolean).join(" · ") || "—";
 
     const tabs = $("dayTabs");
     const panel = $("dayPanel");
@@ -294,7 +454,7 @@
           timeStyle: "short",
           timeZone: "Asia/Dubai",
         }).format(new Date(d.updatedAt)) +
-        " GST · Auto-refresh 60s";
+        " GST · Auto-refresh 45s";
     } catch (e) {
       $("updated").textContent = "Updated " + (d.updatedAt || "—");
     }

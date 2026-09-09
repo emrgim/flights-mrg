@@ -36,8 +36,8 @@
     "gate": null
   },
   "tracking": {
-    "available": false,
-    "message": "Tracking will begin after departure"
+    "available": true,
+    "message": "Live ADS-B on hull A6-EOW (airframe position; may not yet be operating EK030)."
   },
   "codeshares": [
     {
@@ -52,7 +52,19 @@
   "aircraft": {
     "code": "388",
     "description": "Airbus A380-800 Passenger",
-    "duration": "7h 5m"
+    "duration": "7h 5m",
+    "registration": "A6-EOW",
+    "icao24": "8963f4",
+    "position": {
+      "lat": 48.078081,
+      "lon": 15.256559,
+      "altitude": 40000,
+      "heading": 296.18,
+      "speed": 464.7,
+      "seenAt": "2026-09-09T11:57:17.948Z",
+      "onGround": false,
+      "source": "adsb.lol-reg"
+    }
   },
   "otherDays": [
     {
@@ -175,7 +187,7 @@
       "summary": "EK030 from Heathrow listed among Emirates services running behind schedule."
     }
   ],
-  "updatedAt": "2026-09-09T11:52:46.184Z",
+  "updatedAt": "2026-09-09T11:57:17.950Z",
   "sources": [
     {
       "name": "FlightStats",
@@ -188,6 +200,14 @@
     {
       "name": "The National",
       "url": "https://www.thenationalnews.com/travel/2026/09/09/dubai-abu-dhabi-flight-delays-cancellations/"
+    },
+    {
+      "name": "Flightradar24",
+      "url": "https://www.flightradar24.com/data/flights/ek30"
+    },
+    {
+      "name": "adsb.lol",
+      "url": "https://api.adsb.lol/"
     }
   ]
 }
