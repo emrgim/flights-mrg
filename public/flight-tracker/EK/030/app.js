@@ -1,45 +1,61 @@
 (function () {
   const STATUS_URL = "./status.json";
   const REFRESH_MS = 60000;
-  const $ = (id) => document.getElementById(id);
+  const FALLBACK_NEWS = [
+    {
+      title: "NATS air traffic control technical issue — Heathrow",
+      url: "https://www.heathrow.com/departures/terminal-3/flight-details/EK030",
+      source: "Heathrow Airport",
+      airport: "LHR",
+      summary:
+        "Operations recovering after NATS issue; knock-on disruption expected as airlines reposition aircraft and crew.",
+    },
+    {
+      title: "Dubai/Abu Dhabi delays after Heathrow outage",
+      url: "https://www.thenationalnews.com/travel/2026/09/09/dubai-abu-dhabi-flight-delays-cancellations/",
+      source: "The National",
+      airport: "LHR",
+      summary:
+        "EK030 from Heathrow listed among Emirates services running behind schedule amid UK ATC disruption.",
+    },
+  ];
 
+  const $ = (id) => document.getElementById(id);
   let depNewsItems = [];
   let depNewsIndex = 0;
   let expanded = false;
+  let wired = false;
 
   function departureNews(d) {
-    const airport = (d.departure?.airport || "LHR").toUpperCase();
-    const news = Array.isArray(d.news) ? d.news.slice() : [];
-    const tagged = news.filter((n) => (n.airport || "").toUpperCase() === airport);
-    const matchers = [
-      /heathrow/i,
-      /\bLHR\b/i,
-      /NATS/i,
-      /London/i,
-      /UK air/i,
-      /air traffic/i,
-    ];
-    const scored = news.filter((n) => {
-      const blob = `${n.title || ""} ${n.summary || ""} ${n.source || ""}`;
+    const airport = (d.departure && d.departure.airport ? d.departure.airport : "LHR").toUpperCase();
+    const raw = Array.isArray(d.news) && d.news.length ? d.news : FALLBACK_NEWS;
+    const tagged = raw.filter((n) => ((n.airport || "").toUpperCase() === airport));
+    const matchers = [/heathrow/i, /\bLHR\b/i, /NATS/i, /London/i, /air traffic/i];
+    const scored = raw.filter((n) => {
+      const blob = (n.title || "") + " " + (n.summary || "") + " " + (n.source || "");
       return matchers.some((re) => re.test(blob));
     });
-    const list = (tagged.length ? tagged : scored.length ? scored : news).filter(
-      (n) => n && (n.title || n.summary)
-    );
+    let list = tagged.length ? tagged : scored.length ? scored : raw;
+    list = list.filter((n) => n && (n.title || n.summary));
+    if (!list.length) list = FALLBACK_NEWS.slice();
     return { airport, list };
   }
 
-  function tickerText() {
-    if (!depNewsItems.length) return "No departure-airport headlines right now.";
-    return depNewsItems
-      .map((n) => `${n.source ? n.source + ": " : ""}${n.title || "Untitled"}`)
-      .join("   ·   ");
-  }
-
-  function paintTicker() {
-    const text = tickerText();
-    $("tickerItemA").textContent = text;
-    $("tickerItemB").textContent = text;
+  function paintNewsUI() {
+    const now = $("newsNow");
+    const seq = $("tickerSeq");
+    if (!depNewsItems.length) {
+      now.textContent = "No departure-airport headlines right now.";
+      seq.textContent = "No departure-airport headlines right now.   ";
+      return;
+    }
+    const current = depNewsItems[depNewsIndex % depNewsItems.length];
+    now.textContent = (current.source ? current.source + " · " : "") + (current.title || "Untitled");
+    const joined = depNewsItems
+      .map((n) => (n.source ? n.source + ": " : "") + (n.title || "Untitled"))
+      .join("     ·     ");
+    // duplicate for continuous feel
+    seq.textContent = joined + "     ·     " + joined + "     ·     ";
   }
 
   function paintExpanded() {
@@ -64,57 +80,73 @@
   }
 
   function setExpanded(on) {
-    expanded = on;
-    const card = $("newsTickerCard");
-    card.classList.toggle("is-expanded", on);
-    $("newsTickerToggle").setAttribute("aria-expanded", on ? "true" : "false");
-    $("newsExpand").hidden = !on;
-    $("newsTickerHint").textContent = on ? "Tap header to collapse" : "Tap to expand";
-    if (on) paintExpanded();
+    expanded = !!on;
+    $("newsTickerCard").classList.toggle("is-expanded", expanded);
+    $("newsTickerToggle").setAttribute("aria-expanded", expanded ? "true" : "false");
+    $("newsExpand").hidden = !expanded;
+    $("newsTickerHint").textContent = expanded ? "Tap header to collapse" : "Tap to expand & read";
+    if (expanded) paintExpanded();
   }
 
-  function wireNewsControls(once) {
-    if (once._wired) return;
-    once._wired = true;
-    $("newsTickerToggle").addEventListener("click", () => setExpanded(!expanded));
-    $("newsPrev").addEventListener("click", (e) => {
+  function wire() {
+    if (wired) return;
+    wired = true;
+    $("newsTickerToggle").addEventListener("click", function () {
+      setExpanded(!expanded);
+    });
+    $("newsPrev").addEventListener("click", function (e) {
       e.preventDefault();
+      e.stopPropagation();
       if (!depNewsItems.length) return;
       depNewsIndex = (depNewsIndex - 1 + depNewsItems.length) % depNewsItems.length;
+      paintNewsUI();
       paintExpanded();
     });
-    $("newsNext").addEventListener("click", (e) => {
+    $("newsNext").addEventListener("click", function (e) {
       e.preventDefault();
+      e.stopPropagation();
       if (!depNewsItems.length) return;
       depNewsIndex = (depNewsIndex + 1) % depNewsItems.length;
+      paintNewsUI();
       paintExpanded();
     });
   }
 
   function startDepNews(d) {
-    const { airport, list } = departureNews(d);
-    $("depNewsAirport").textContent = airport;
-    depNewsItems = list.slice(0, 12);
+    const out = departureNews(d || {});
+    $("depNewsAirport").textContent = out.airport;
+    depNewsItems = out.list.slice(0, 12);
     if (depNewsIndex >= depNewsItems.length) depNewsIndex = 0;
-    paintTicker();
+    paintNewsUI();
     if (expanded) paintExpanded();
-    wireNewsControls(startDepNews);
+    wire();
   }
 
   function timeWithTz(t, tzLabel) {
     if (!t) return "—";
-    return tzLabel ? `${t} ${tzLabel}` : t;
+    return tzLabel ? t + " " + tzLabel : t;
   }
 
   function render(d) {
+    d = d || {};
+    // News first so a later crash still leaves headlines visible
+    try {
+      startDepNews(d);
+    } catch (err) {
+      console.error(err);
+      depNewsItems = FALLBACK_NEWS.slice();
+      paintNewsUI();
+      wire();
+    }
+
     const code = d.airlineCode || "EK";
     const num = String(d.flightNumber || "030").replace(/^0+(?=\d)/, "") || "30";
     const padded = String(d.flightNumber || "030");
-    $("title").textContent = `(${code}) ${d.airlineName || "Emirates"} ${num}`;
-    $("flightNum").textContent = `${code} ${num}`;
+    $("title").textContent = "(" + code + ") " + (d.airlineName || "Emirates") + " " + num;
+    $("flightNum").textContent = code + " " + num;
     $("airline").textContent = d.airlineName || "Emirates";
-    $("depCity").textContent = d.departure?.city || "London";
-    $("arrCity").textContent = d.arrival?.city || "Dubai";
+    $("depCity").textContent = (d.departure && d.departure.city) || "London";
+    $("arrCity").textContent = (d.arrival && d.arrival.city) || "Dubai";
     $("status").textContent = d.status || "Status unavailable";
     $("statusDetail").textContent = d.statusDetail || "";
 
@@ -124,8 +156,6 @@
     } else {
       $("caution").hidden = true;
     }
-
-    startDepNews(d);
 
     const dep = d.departure || {};
     const arr = d.arrival || {};
@@ -149,14 +179,13 @@
 
     const tr = d.tracking || {};
     $("trackerMsg").textContent =
-      tr.message ||
-      (tr.available ? "Live tracking active" : "Tracking will begin after departure");
+      tr.message || (tr.available ? "Live tracking active" : "Tracking will begin after departure");
 
     const cs = $("codeshares");
     cs.innerHTML = "";
-    (d.codeshares || []).forEach((c) => {
+    (d.codeshares || []).forEach(function (c) {
       const li = document.createElement("li");
-      li.textContent = `${c.airline} · ${c.flight}`;
+      li.textContent = c.airline + " · " + c.flight;
       cs.appendChild(li);
     });
     if (!(d.codeshares || []).length) {
@@ -167,56 +196,68 @@
     }
 
     const ac = d.aircraft || {};
-    $("aircraft").textContent =
-      [ac.code, ac.description].filter(Boolean).join(" · ") || "—";
+    $("aircraft").textContent = [ac.code, ac.description].filter(Boolean).join(" · ") || "—";
 
     const tabs = $("dayTabs");
     const panel = $("dayPanel");
     tabs.innerHTML = "";
     panel.innerHTML = "";
     const days = d.otherDays || [];
-    let selected = days.findIndex(
-      (x) =>
-        x.label &&
-        d.departure?.dateLabel &&
-        d.departure.dateLabel.startsWith(x.label.slice(0, 6))
-    );
-    if (selected < 0) selected = Math.max(0, days.findIndex((x) => (x.flights || []).length));
-    if (selected < 0) selected = 0;
+    let selected = 0;
+    for (let i = 0; i < days.length; i++) {
+      if (days[i].label && dep.dateLabel && String(dep.dateLabel).indexOf(String(days[i].label).slice(0, 6)) === 0) {
+        selected = i;
+        break;
+      }
+    }
 
     function showDay(idx) {
-      [...tabs.querySelectorAll(".tab")].forEach((b, i) =>
-        b.setAttribute("aria-selected", i === idx ? "true" : "false")
-      );
+      const buttons = tabs.querySelectorAll(".tab");
+      for (let i = 0; i < buttons.length; i++) {
+        buttons[i].setAttribute("aria-selected", i === idx ? "true" : "false");
+      }
       const day = days[idx];
       if (!day) {
         panel.innerHTML = '<p class="day-empty">No schedule data.</p>';
         return;
       }
-      let html = `<p class="day-title">${
-        day.day ? "Flights for " + day.day + ", " + day.label + "-" + day.year : day.label
-      }</p>`;
+      let html =
+        '<p class="day-title">' +
+        (day.day ? "Flights for " + day.day + ", " + day.label + "-" + day.year : day.label) +
+        "</p>";
       const flights = day.flights || [];
       if (!flights.length) {
         html += '<p class="day-empty">No flight information available for this date.</p>';
       } else {
-        for (const f of flights) {
-          html += `<div class="day-row">
-            <div><div class="day-time">${f.dep || "—"} ${f.depTz || ""}</div><div class="day-air">${f.from || ""}</div></div>
-            <div class="arrow" aria-hidden="true">→</div>
-            <div style="text-align:right"><div class="day-time">${f.arr || "—"} ${f.arrTz || ""}</div><div class="day-air">${f.to || ""}</div></div>
-          </div>`;
+        for (let fi = 0; fi < flights.length; fi++) {
+          const f = flights[fi];
+          html +=
+            '<div class="day-row"><div><div class="day-time">' +
+            (f.dep || "—") +
+            " " +
+            (f.depTz || "") +
+            '</div><div class="day-air">' +
+            (f.from || "") +
+            '</div></div><div class="arrow" aria-hidden="true">→</div><div style="text-align:right"><div class="day-time">' +
+            (f.arr || "—") +
+            " " +
+            (f.arrTz || "") +
+            '</div><div class="day-air">' +
+            (f.to || "") +
+            "</div></div></div>";
         }
       }
       panel.innerHTML = html;
     }
 
-    days.forEach((day, idx) => {
+    days.forEach(function (day, idx) {
       const b = document.createElement("button");
       b.type = "button";
       b.className = "tab";
       b.textContent = day.label || "Day " + (idx + 1);
-      b.addEventListener("click", () => showDay(idx));
+      b.addEventListener("click", function () {
+        showDay(idx);
+      });
       tabs.appendChild(b);
     });
     if (days.length) showDay(selected);
@@ -230,19 +271,21 @@
           timeZone: "Asia/Dubai",
         }).format(new Date(d.updatedAt)) +
         " GST · Auto-refresh 60s";
-    } catch {
+    } catch (e) {
       $("updated").textContent = "Updated " + (d.updatedAt || "—");
     }
 
     const sources = (d.sources || [])
-      .filter((s) => s && s.name)
-      .map((s) =>
-        s.url
-          ? `<a href="${s.url}" target="_blank" rel="noopener">${s.name}</a>`
-          : s.name
-      );
+      .filter(function (s) {
+        return s && s.name;
+      })
+      .map(function (s) {
+        return s.url
+          ? '<a href="' + s.url + '" target="_blank" rel="noopener">' + s.name + "</a>"
+          : s.name;
+      });
     $("sources").innerHTML = sources.length ? "Sources: " + sources.join(" · ") : "";
-    document.title = `${code}${padded} · ${d.airlineName || "Emirates"} Flight Tracker`;
+    document.title = code + padded + " · " + (d.airlineName || "Emirates") + " Flight Tracker";
   }
 
   async function load() {
@@ -257,28 +300,20 @@
         airlineName: "Emirates",
         status: "Status unavailable",
         statusDetail: String(e.message || e),
-        departure: {
-          city: "London",
-          region: "EN, GB",
-          airport: "LHR",
-          airportName: "London Heathrow Airport",
-        },
-        arrival: {
-          city: "Dubai",
-          region: "AE",
-          airport: "DXB",
-          airportName: "Dubai International Airport",
-        },
+        departure: { city: "London", region: "EN, GB", airport: "LHR", airportName: "London Heathrow Airport" },
+        arrival: { city: "Dubai", region: "AE", airport: "DXB", airportName: "Dubai International Airport" },
         tracking: { available: false, message: "Live feed offline" },
         codeshares: [],
         aircraft: {},
-        news: [],
+        news: FALLBACK_NEWS,
         sources: [],
         updatedAt: null,
       });
     }
   }
 
+  // Paint fallback immediately so the card is never empty while fetch runs
+  startDepNews({ departure: { airport: "LHR" }, news: FALLBACK_NEWS });
   load();
   setInterval(load, REFRESH_MS);
 })();

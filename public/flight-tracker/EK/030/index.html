@@ -19,23 +19,19 @@
       <p class="subtitle" id="subtitle">Flight Tracker</p>
     </header>
 
-    <section
-      class="panel news-ticker"
-      id="newsTickerCard"
-      aria-labelledby="dep-news-heading"
-    >
+    <section class="panel news-ticker" id="newsTickerCard" aria-labelledby="dep-news-heading">
       <button type="button" class="news-ticker-hit" id="newsTickerToggle" aria-expanded="false">
         <div class="news-ticker-top">
-          <h2 id="dep-news-heading" class="panel-title">Departure airport</h2>
+          <h2 id="dep-news-heading" class="panel-title">Departure airport news</h2>
           <span class="news-ticker-tag" id="depNewsAirport">LHR</span>
         </div>
+        <p class="news-now" id="newsNow">Loading…</p>
         <div class="ticker-viewport" id="tickerViewport">
-          <div class="ticker-track" id="tickerTrack" aria-live="off">
-            <span class="ticker-item" id="tickerItemA">Loading airport news…</span>
-            <span class="ticker-item" id="tickerItemB" aria-hidden="true"></span>
+          <div class="ticker-track" id="tickerTrack">
+            <span class="ticker-seq" id="tickerSeq"></span>
           </div>
         </div>
-        <p class="news-ticker-hint" id="newsTickerHint">Tap to expand</p>
+        <p class="news-ticker-hint" id="newsTickerHint">Tap to expand &amp; read</p>
       </button>
       <div class="news-expand" id="newsExpand" hidden>
         <p class="news-expand-source" id="newsExpandSource"></p>
@@ -70,45 +66,44 @@
     </section>
 
     <section class="legs">
-      <article class="panel leg" aria-labelledby="dep-heading">
-        <h2 id="dep-heading" class="panel-title">Flight Departure Times</h2>
+      <article class="panel leg">
+        <h2 class="panel-title">Flight Departure Times</h2>
         <p class="place-line" id="depPlace">London, EN, GB</p>
         <p class="airport-name" id="depAirport">London Heathrow Airport</p>
-        <p class="date-line" id="depDate">09-Sep-2026</p>
+        <p class="date-line" id="depDate">—</p>
         <dl class="kv">
-          <div><dt>Scheduled</dt><dd id="depSched">16:50 BST</dd></div>
-          <div><dt>Estimated</dt><dd id="depEst">16:50 BST</dd></div>
+          <div><dt>Scheduled</dt><dd id="depSched">—</dd></div>
+          <div><dt>Estimated</dt><dd id="depEst">—</dd></div>
           <div><dt>Actual</dt><dd id="depAct">—</dd></div>
-          <div><dt>Terminal</dt><dd id="depTerm">3</dd></div>
-          <div><dt>Gate</dt><dd id="depGate">N/A</dd></div>
+          <div><dt>Terminal</dt><dd id="depTerm">—</dd></div>
+          <div><dt>Gate</dt><dd id="depGate">—</dd></div>
         </dl>
       </article>
-
-      <article class="panel leg" aria-labelledby="arr-heading">
-        <h2 id="arr-heading" class="panel-title">Flight Arrival Times</h2>
+      <article class="panel leg">
+        <h2 class="panel-title">Flight Arrival Times</h2>
         <p class="place-line" id="arrPlace">Dubai, AE</p>
         <p class="airport-name" id="arrAirport">Dubai International Airport</p>
-        <p class="date-line" id="arrDate">10-Sep-2026</p>
+        <p class="date-line" id="arrDate">—</p>
         <dl class="kv">
-          <div><dt>Scheduled</dt><dd id="arrSched">02:55 +04</dd></div>
-          <div><dt>Estimated</dt><dd id="arrEst">02:55 +04</dd></div>
+          <div><dt>Scheduled</dt><dd id="arrSched">—</dd></div>
+          <div><dt>Estimated</dt><dd id="arrEst">—</dd></div>
           <div><dt>Actual</dt><dd id="arrAct">—</dd></div>
-          <div><dt>Terminal</dt><dd id="arrTerm">3</dd></div>
-          <div><dt>Gate</dt><dd id="arrGate">N/A</dd></div>
+          <div><dt>Terminal</dt><dd id="arrTerm">—</dd></div>
+          <div><dt>Gate</dt><dd id="arrGate">—</dd></div>
         </dl>
       </article>
     </section>
 
-    <section class="panel" aria-labelledby="track-heading">
-      <h2 id="track-heading" class="panel-title">Flight Tracker</h2>
-      <div class="tracker" id="tracker">
+    <section class="panel">
+      <h2 class="panel-title">Flight Tracker</h2>
+      <div class="tracker">
         <p class="tracker-title">Positional Tracking Not Available Yet</p>
         <p class="tracker-msg" id="trackerMsg">Tracking will begin after departure</p>
       </div>
     </section>
 
-    <section class="panel" aria-labelledby="details-heading">
-      <h2 id="details-heading" class="panel-title">Additional Details</h2>
+    <section class="panel">
+      <h2 class="panel-title">Additional Details</h2>
       <div class="details-grid">
         <div>
           <h3 class="subhead">Also marketed as</h3>
@@ -116,20 +111,20 @@
         </div>
         <div>
           <h3 class="subhead">Aircraft equipment</h3>
-          <p class="aircraft" id="aircraft">388 · Airbus A380-800 Passenger</p>
+          <p class="aircraft" id="aircraft">—</p>
         </div>
       </div>
     </section>
 
-    <section class="panel" aria-labelledby="past-heading">
-      <h2 id="past-heading" class="panel-title">Past and Upcoming Flights</h2>
+    <section class="panel">
+      <h2 class="panel-title">Past and Upcoming Flights</h2>
       <div class="tabs" id="dayTabs"></div>
       <div id="dayPanel" class="day-panel"></div>
     </section>
 
     <footer class="foot">
       <p id="updated">Updated —</p>
-      <p class="muted">Look inspired by Bring Fast · not affiliated with Emirates or FlightStats</p>
+      <p class="muted">Bring Fast look · not affiliated with Emirates or FlightStats</p>
       <p class="muted" id="sources"></p>
     </footer>
   </main>
