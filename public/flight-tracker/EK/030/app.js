@@ -20,7 +20,24 @@
     },
   ];
 
-  const $ = (id) => document.getElementById(id);
+  const $ = (id) => {
+    const el = document.getElementById(id);
+    if (el) return el;
+    // Null-safe stub so a missing node never kills the whole render
+    return {
+      textContent: "",
+      innerHTML: "",
+      hidden: false,
+      classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } },
+      setAttribute() {},
+      removeAttribute() {},
+      addEventListener() {},
+      querySelectorAll() { return []; },
+      children: [],
+      href: "",
+      style: {},
+    };
+  };
   let depNewsItems = [];
   let depNewsIndex = 0;
   let expanded = false;

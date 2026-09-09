@@ -158,24 +158,24 @@
       "flights": []
     }
   ],
-  "caution": "Heathrow recovering from NATS ATC issue; knock-on disruption possible. Confirm with Emirates before going to the airport. Press lists EK030 among delayed services \u2014 treat on-time cautiously.",
+  "caution": "Heathrow recovering from NATS ATC issue; knock-on disruption possible. Confirm with Emirates before going to the airport. Press lists EK030 among delayed services — treat on-time cautiously.",
   "news": [
     {
-      "title": "NATS air traffic control technical issue \u2014 Heathrow",
+      "title": "NATS air traffic control technical issue — Heathrow",
       "url": "https://www.heathrow.com/departures/terminal-3/flight-details/EK030",
       "source": "Heathrow Airport",
-      "summary": "Operations recovering; some knock-on disruption expected as airlines reposition aircraft and crew.",
-      "airport": "LHR"
+      "airport": "LHR",
+      "summary": "Operations recovering; some knock-on disruption expected as airlines reposition aircraft and crew."
     },
     {
       "title": "Dubai/Abu Dhabi delays after Heathrow outage",
       "url": "https://www.thenationalnews.com/travel/2026/09/09/dubai-abu-dhabi-flight-delays-cancellations/",
       "source": "The National",
-      "summary": "EK030 from Heathrow listed among Emirates services running behind schedule.",
-      "airport": "LHR"
+      "airport": "LHR",
+      "summary": "EK030 from Heathrow listed among Emirates services running behind schedule."
     }
   ],
-  "updatedAt": "2026-09-09T09:03:55Z",
+  "updatedAt": "2026-09-09T09:08:14.571Z",
   "sources": [
     {
       "name": "FlightStats",
