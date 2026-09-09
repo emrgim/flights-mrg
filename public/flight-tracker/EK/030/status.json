@@ -3,9 +3,9 @@
   "flightNumber": "030",
   "airlineName": "Emirates",
   "flightId": 1407221493,
-  "status": "Scheduled",
-  "statusDetail": "Delayed by 20m",
-  "statusCode": "S",
+  "status": "Departed",
+  "statusDetail": "On time",
+  "statusCode": "A",
   "date": "2026-09-09",
   "departure": {
     "city": "London",
@@ -14,8 +14,8 @@
     "airport": "LHR",
     "dateLabel": "09-Sep-2026",
     "scheduled": "16:50",
-    "estimated": "17:10",
-    "actual": null,
+    "estimated": "17:13",
+    "actual": "17:13",
     "timezoneLabel": "BST",
     "timezone": "Europe/London",
     "terminal": "3",
@@ -28,7 +28,7 @@
     "airport": "DXB",
     "dateLabel": "10-Sep-2026",
     "scheduled": "02:55",
-    "estimated": "03:01",
+    "estimated": "03:04",
     "actual": null,
     "timezoneLabel": "+04",
     "timezone": "Asia/Dubai",
@@ -37,7 +37,7 @@
   },
   "tracking": {
     "available": true,
-    "message": "Live ADS-B on hull A6-EVS (airframe position; may not yet be operating EK030)."
+    "message": "Live tracking active"
   },
   "codeshares": [
     {
@@ -56,14 +56,14 @@
     "registration": "A6-EVS",
     "icao24": "89655f",
     "position": {
-      "lat": 51.474838,
-      "lon": -0.433014,
-      "altitude": 0,
-      "heading": 50.62,
-      "speed": 0.1,
-      "seenAt": "2026-09-09T16:06:51.698Z",
-      "onGround": true,
-      "source": "adsb.lol-hex"
+      "lat": 49.78017,
+      "lon": 9.671977,
+      "altitude": 39000,
+      "heading": 112.29,
+      "speed": 522,
+      "seenAt": "2026-09-09T17:07:50.012Z",
+      "onGround": false,
+      "source": "adsb.lol-reg"
     }
   },
   "otherDays": [
@@ -178,7 +178,7 @@
       "source": "Heathrow Airport",
       "airport": "LHR",
       "summary": "NATS technical issue resolved Tuesday evening. Flights operating today; knock-on disruption expected as airlines reposition aircraft and crew. Check with airline before travelling.",
-      "fetchedAt": "2026-09-09T16:06:57.676Z"
+      "fetchedAt": "2026-09-09T17:07:38.835Z"
     },
     {
       "title": "UK flights resume but airports warn of ongoing disruption",
@@ -186,7 +186,7 @@
       "source": "Reuters",
       "airport": "LHR",
       "summary": "British airports resumed flights early Wednesday after NATS resolved Tuesday's air-traffic failure; hubs warn recovery will take time with aircraft and crews out of position.",
-      "fetchedAt": "2026-09-09T16:06:57.676Z"
+      "fetchedAt": "2026-09-09T17:07:38.835Z"
     },
     {
       "title": "Hundreds more Heathrow flights cancelled as network recovers",
@@ -194,7 +194,7 @@
       "source": "Evening Standard",
       "airport": "LHR",
       "summary": "Wednesday knock-on cancellations continue at Heathrow after NATS resolved the Tuesday outage; passengers advised to check with their airline before travelling.",
-      "fetchedAt": "2026-09-09T16:06:57.676Z"
+      "fetchedAt": "2026-09-09T17:07:38.835Z"
     },
     {
       "title": "Dubai/Abu Dhabi delays after Heathrow outage",
@@ -202,10 +202,10 @@
       "source": "The National",
       "airport": "LHR",
       "summary": "EK030 from Heathrow listed among Emirates services running behind schedule amid knock-on UK disruption.",
-      "fetchedAt": "2026-09-09T16:06:57.676Z"
+      "fetchedAt": "2026-09-09T17:07:38.835Z"
     }
   ],
-  "updatedAt": "2026-09-09T16:07:10.856Z",
+  "updatedAt": "2026-09-09T17:07:50.198Z",
   "sources": [
     {
       "name": "FlightStats",
