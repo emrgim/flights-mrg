@@ -1,34 +1,98 @@
 {
   "flight": "EK030",
   "airline": "Emirates",
-  "route": { "from": "LHR", "to": "DXB", "label": "London Heathrow → Dubai" },
-  "status": "Status unavailable",
-  "statusCode": "unavailable",
+  "route": {
+    "from": "LHR",
+    "to": "DXB",
+    "label": "London Heathrow → Dubai"
+  },
+  "status": "Landed (432m late)",
+  "statusCode": "landed",
+  "statusDetail": null,
+  "caution": "Possible Heathrow/DXB disruption in the news — confirm with Emirates before travelling.",
   "departure": {
     "airport": "LHR",
     "name": "London Heathrow",
-    "terminal": null,
-    "gate": null,
-    "scheduled": null,
-    "estimated": null,
-    "actual": null,
+    "terminal": "3",
+    "gate": "24",
+    "scheduled": "2026-09-08T15:50:00.000Z",
+    "estimated": "2026-09-08T20:00:00.000Z",
+    "actual": "2026-09-08T23:02:00.000Z",
     "timezone": "Europe/London"
   },
   "arrival": {
     "airport": "DXB",
-    "name": "Dubai International",
-    "terminal": null,
+    "name": "Dubai Int'l",
+    "terminal": "3",
     "gate": null,
-    "scheduled": null,
-    "estimated": null,
-    "actual": null,
+    "scheduled": "2026-09-08T22:55:00.000Z",
+    "estimated": "2026-09-09T05:43:00.000Z",
+    "actual": "2026-09-09T05:44:00.000Z",
     "timezone": "Asia/Dubai"
   },
-  "aircraft": null,
-  "delayMinutes": null,
-  "updatedAt": null,
-  "available": false,
-  "error": "Awaiting first update.mjs run",
-  "news": [],
-  "sources": []
+  "aircraft": "Airbus A380-800 (quad-jet)",
+  "delayMinutes": 432,
+  "updatedAt": "2026-09-09T08:50:25.522Z",
+  "available": true,
+  "error": null,
+  "news": [
+    {
+      "title": "Dubai flights affected after Heathrow ATC disruption",
+      "url": "https://www.thenationalnews.com/travel/2026/09/09/dubai-abu-dhabi-flight-delays-cancellations/",
+      "source": "The National",
+      "summary": "UAE services facing delays/cancellations linked to UK NATS issues; check airline status before travel."
+    },
+    {
+      "title": "Massive disruption hits UK airports after air traffic control issue - CNN",
+      "url": "https://news.google.com/rss/articles/CBMifEFVX3lxTE1pblhSX3pmYzJ0WkFLOHVTSXVEcXFNUThJUHlTNGVjcDU3LUJoSzFNTmN4em9KOS1ac2g3c0xzZHpSaDNsWHY2OE9QZkZJWjNHTGNjQ0dteExObzZvMUFrRnRTU3FwYzIybktLRGx3dVVqX0wxUTNqN0pfeng?oc=5",
+      "source": "CNN",
+      "summary": "&lt;a href=\"https://news.google.com/rss/articles/CBMifEFVX3lxTE1pblhSX3pmYzJ0WkFLOHVTSXVEcXFNUThJUHlTNGVjcDU3LUJoSzFNTmN4em9KOS1ac2g3c0xzZHpSaDNsWHY2OE9QZkZJWjNHTGNjQ0dteExObzZvMUFrRnRTU3FwYzIybktLRGx3dVVqX0wxUTNqN0pfeng"
+    },
+    {
+      "title": "Widespread flight delays hit major British airports - NBC News",
+      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPYkk5NEF0dWhvVjVjcE9KbG1qS3BpUGRKNnMzSlRVU1pjSGM5YVM1TjJFQzY0UUdVQlY5TDQtdE9xRmlLamVneE1KQkRJd3B0QkZoRVV5UllZS3k3NDlfV0VPS3hYZkloaE03Rlk1VUJhblVjSk8wdmtPX1FRM0U5d29jcVI1Z0tYUVo3SmJZVHFRYnV2?oc=5",
+      "source": "NBC News",
+      "summary": "&lt;a href=\"https://news.google.com/rss/articles/CBMilAFBVV95cUxPYkk5NEF0dWhvVjVjcE9KbG1qS3BpUGRKNnMzSlRVU1pjSGM5YVM1TjJFQzY0UUdVQlY5TDQtdE9xRmlLamVneE1KQkRJd3B0QkZoRVV5UllZS3k3NDlfV0VPS3hYZkloaE03Rlk1VUJhblVjSk8wdmtPX1F"
+    },
+    {
+      "title": "UK airports face more disruption after air traffic control glitch with 250 flights axed - Euronews.com",
+      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNeXV2dGR6Ym1CYm1PNXNqY0F6aXhCLXZzZXJ6WDVOY2hJaGtDanB1ZHZvdFVscVhVV2M5aDZRTUM0RzFLcHU4UEtwa19zMGRGNkY0U3l6OXRvaHRRTml5X1laam5STHZLU19pWVd5ZHhfSlhoT0VjVHpjMXZyTVVwZ3lOSHN0VUVIMm9kdVNxaTNpQ2RnOUFfSjVvT0ZLbDNOR3BEeUM2dzdlc09JaGRnQ1hrREZ2Wm5q?oc=5",
+      "source": "Euronews.com",
+      "summary": "&lt;a href=\"https://news.google.com/rss/articles/CBMiuAFBVV95cUxNeXV2dGR6Ym1CYm1PNXNqY0F6aXhCLXZzZXJ6WDVOY2hJaGtDanB1ZHZvdFVscVhVV2M5aDZRTUM0RzFLcHU4UEtwa19zMGRGNkY0U3l6OXRvaHRRTml5X1laam5STHZLU19pWVd5ZHhfSlhoT0VjVHpjMXZ"
+    },
+    {
+      "title": "Days of delays after air traffic control chaos hits 1,900 flights - The Times",
+      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNOE4tYkZNLXJZZGlZV2V6UlluY3JfcWNQMDlITlB2Y2pGQXBYSkpRWjgzLXdFNjlZUG90dHBYMG1MeFZ0ZE56N3FleTZaZVh6RDNkVWFjTGVHRm9feDZzYkNnNklaVlI3T1FkSVZfMVlhSVNwSzRoQ2RpVHV3TXFfajVWLVp2d0xvbEFnYVE2elM5N1Z0QnJDVDBTb0dRdVRHZF9EMlNDSjVWTmtaRXFpUjhLY2lFaERn?oc=5",
+      "source": "The Times",
+      "summary": "&lt;a href=\"https://news.google.com/rss/articles/CBMiuAFBVV95cUxNOE4tYkZNLXJZZGlZV2V6UlluY3JfcWNQMDlITlB2Y2pGQXBYSkpRWjgzLXdFNjlZUG90dHBYMG1MeFZ0ZE56N3FleTZaZVh6RDNkVWFjTGVHRm9feDZzYkNnNklaVlI3T1FkSVZfMVlhSVNwSzRoQ2RpVHV"
+    },
+    {
+      "title": "War knocked Dubai’s airport traffic down 31%. Its CEO says its global hub ambitions haven’t changed - Fortune",
+      "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPWlB0anVQenUwU2hndng1bkhrNkdHRDBZeXpSajV2RmxvSHl3ZVJGZDZVNFZfWENDeEYxSS0wT294aWpRbmYyaGE4NnVxdmZKT2x5Smw3RHc2aFJqR2NxR05RNG5hSUtSMmcyR3Q2d3NnelFZWENuUkZ2YmRhSkZIUmFHWUV0UlM3RGtESHM4UVhmUDZVaGo1Q2JfVUt5cmxJUWZaZGh2UjljbTlOZi1hOHNlVQ?oc=5",
+      "source": "Fortune",
+      "summary": "&lt;a href=\"https://news.google.com/rss/articles/CBMiswFBVV95cUxPWlB0anVQenUwU2hndng1bkhrNkdHRDBZeXpSajV2RmxvSHl3ZVJGZDZVNFZfWENDeEYxSS0wT294aWpRbmYyaGE4NnVxdmZKT2x5Smw3RHc2aFJqR2NxR05RNG5hSUtSMmcyR3Q2d3NnelFZWENuUkZ2YmR"
+    },
+    {
+      "title": "Dubai's DXB first-half passenger traffic falls more than 30% as Iran war disrupts travel - Reuters",
+      "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxNbEsycFlDR0QyX3p6R2YwTHVfUTMwaUo3Xy1XMU14Q2xjNU9hZERvYzhkQTQ1ZF95RF8waXhVdnlHX21XblJPWHRqMjVRcU5MMkM4VllGNjVmMnVPeWh5Nm1MZnVKQ0Y4eGJvb3NyMWlCRFJUbW5Sd1Z5UXZlZE1jWkJCVVdWV1ZzcG1qWXVJVk5ZWFN4WFdXSVU3ZzBfNDZQM01Kcnp5cG9tQktIdHJxaFhjdUFKQUw3QXZObTlrVU9wc1NUeWxCVWxB?oc=5",
+      "source": "Reuters",
+      "summary": "&lt;a href=\"https://news.google.com/rss/articles/CBMiygFBVV95cUxNbEsycFlDR0QyX3p6R2YwTHVfUTMwaUo3Xy1XMU14Q2xjNU9hZERvYzhkQTQ1ZF95RF8waXhVdnlHX21XblJPWHRqMjVRcU5MMkM4VllGNjVmMnVPeWh5Nm1MZnVKQ0Y4eGJvb3NyMWlCRFJUbW5Sd1Z5UXZ"
+    },
+    {
+      "title": "Dubai airport ranked region’s most connected hub, widening lead over rivals - Gulf News",
+      "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxNQ3JwQkF1WlJrT3I0aDVVR0dmMlIyUzBaZFZoRjdQdWl0SXhuM25YdUhJLTl6dlYtOGNCSWtIU2FiYk02ZFZxRjVMR3VwZFZjU3llTjRQRHVHRXR2NWR2ZDdZczd1dHlhWTIwVGFTbnhQbEhvcHlPd0wzbGY3a2dBLTRUTUxyTHZWazZTLUpMRGZKQjNIT2ZtRWFyZVl2RVY4ODJpbGx6R0huV3RTUEI5eUduWnA5RFNOY0w0R0Z5VG8tQdIB1AFBVV95cUxPZVotLTNtWkpvMGJKWUNGMUxJNlpDSHlWbkhlRUZYTFVRdkpnbE8wT2Ita1VjN3JSazNMMFdfV0tER2lzOHdBWTJ0T2RJTmFGVkNCbkViLWQzSU5Zb2FOSjVCWDVueTYxVEU0ckZIQnlyaFd4ckRYRENSV195UnFrNEVzV3FXOGIwNmppLW1yMkRZMG5pT3BaZVdtRmM0MmhHUkFwRDN1N3lUZWFjUS1wSy1QRFRYWWgyOWxORnh1RFdUaHlScnF5U1lSWF84VFhGeUNVZA?oc=5",
+      "source": "Gulf News",
+      "summary": "&lt;a href=\"https://news.google.com/rss/articles/CBMiwgFBVV95cUxNQ3JwQkF1WlJrT3I0aDVVR0dmMlIyUzBaZFZoRjdQdWl0SXhuM25YdUhJLTl6dlYtOGNCSWtIU2FiYk02ZFZxRjVMR3VwZFZjU3llTjRQRHVHRXR2NWR2ZDdZczd1dHlhWTIwVGFTbnhQbEhvcHlPd0wzbGY"
+    }
+  ],
+  "sources": [
+    {
+      "name": "FlightAware",
+      "url": "https://www.flightaware.com/live/flight/UAE30"
+    },
+    {
+      "name": "Google News RSS",
+      "url": "https://news.google.com/"
+    }
+  ]
 }

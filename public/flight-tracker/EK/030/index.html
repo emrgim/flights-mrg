@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>EK030 · Emirates Flight Tracker</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">Flight tracker</p>
+      <h1 id="title">(EK) Emirates 30</h1>
+      <p class="subtitle" id="subtitle">Flight Tracker</p>
+    </header>
+
+    <section class="panel status-panel" aria-labelledby="status-heading">
+      <h2 id="status-heading" class="panel-title">Flight Status</h2>
+      <div class="status-row">
+        <div class="flight-id">
+          <span class="flight-num" id="flightNum">EK 30</span>
+          <span class="airline" id="airline">Emirates</span>
+        </div>
+        <div class="cities">
+          <span id="depCity">London</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span id="arrCity">Dubai</span>
+        </div>
+      </div>
+      <div class="status-block">
+        <p class="status-main" id="status">Scheduled</p>
+        <p class="status-detail" id="statusDetail">On time</p>
+      </div>
+      <p class="caution" id="caution" hidden></p>
+    </section>
+
+    <section class="legs">
+      <article class="panel leg" aria-labelledby="dep-heading">
+        <h2 id="dep-heading" class="panel-title">Flight Departure Times</h2>
+        <p class="place-line" id="depPlace">London, EN, GB</p>
+        <p class="airport-name" id="depAirport">London Heathrow Airport</p>
+        <p class="date-line" id="depDate">09-Sep-2026</p>
+        <dl class="kv">
+          <div><dt>Scheduled</dt><dd id="depSched">16:50 BST</dd></div>
+          <div><dt>Estimated</dt><dd id="depEst">16:50 BST</dd></div>
+          <div><dt>Actual</dt><dd id="depAct">—</dd></div>
+          <div><dt>Terminal</dt><dd id="depTerm">3</dd></div>
+          <div><dt>Gate</dt><dd id="depGate">N/A</dd></div>
+        </dl>
+      </article>
+
+      <article class="panel leg" aria-labelledby="arr-heading">
+        <h2 id="arr-heading" class="panel-title">Flight Arrival Times</h2>
+        <p class="place-line" id="arrPlace">Dubai, AE</p>
+        <p class="airport-name" id="arrAirport">Dubai International Airport</p>
+        <p class="date-line" id="arrDate">10-Sep-2026</p>
+        <dl class="kv">
+          <div><dt>Scheduled</dt><dd id="arrSched">02:55 +04</dd></div>
+          <div><dt>Estimated</dt><dd id="arrEst">02:55 +04</dd></div>
+          <div><dt>Actual</dt><dd id="arrAct">—</dd></div>
+          <div><dt>Terminal</dt><dd id="arrTerm">3</dd></div>
+          <div><dt>Gate</dt><dd id="arrGate">N/A</dd></div>
+        </dl>
+      </article>
+    </section>
+
+    <section class="panel" aria-labelledby="track-heading">
+      <h2 id="track-heading" class="panel-title">Flight Tracker</h2>
+      <div class="tracker" id="tracker">
+        <p class="tracker-title">Positional Tracking Not Available Yet</p>
+        <p class="tracker-msg" id="trackerMsg">Tracking will begin after departure</p>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="details-heading">
+      <h2 id="details-heading" class="panel-title">Additional Details</h2>
+      <div class="details-grid">
+        <div>
+          <h3 class="subhead">Also marketed as</h3>
+          <ul class="codeshares" id="codeshares"></ul>
+        </div>
+        <div>
+          <h3 class="subhead">Aircraft equipment</h3>
+          <p class="aircraft" id="aircraft">388 · Airbus A380-800 Passenger</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="news-heading">
+      <h2 id="news-heading" class="panel-title">Airport traffic &amp; news</h2>
+      <ul class="news" id="news"></ul>
+    </section>
+
+    <footer class="foot">
+      <p id="updated">Updated —</p>
+      <p class="muted">Schema mirrors FlightStats · not affiliated with Emirates or FlightStats</p>
+      <p class="muted" id="sources"></p>
+    </footer>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>

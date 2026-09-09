@@ -59,6 +59,8 @@
       sub.push(`${data.delayMinutes} min delay`);
     }
     if (!available && data?.error) sub.push('Live feed offline');
+    if (data?.caution) sub.push(data.caution);
+    else if (data?.statusDetail) sub.push(data.statusDetail);
     $('statusSub').textContent = sub.join(' · ');
 
     if (data?.route?.label) $('route').textContent = data.route.label;

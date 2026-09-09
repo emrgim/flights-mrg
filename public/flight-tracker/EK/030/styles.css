@@ -1,0 +1,176 @@
+:root {
+  color-scheme: dark;
+  --bg: #000;
+  --fg: #fff;
+  --muted: #9ca3af;
+  --line: #1f1f1f;
+  --card: #0a0a0a;
+  --pad: max(1rem, env(safe-area-inset-left));
+  --padr: max(1rem, env(safe-area-inset-right));
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  line-height: 1.35;
+}
+.page {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: max(1rem, env(safe-area-inset-top)) var(--padr) 3rem var(--pad);
+}
+.hero { margin-bottom: 1.25rem; }
+.eyebrow {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hero h1 {
+  margin: 0.35rem 0 0;
+  font-size: clamp(1.6rem, 6.5vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.subtitle { margin: 0.2rem 0 0; color: var(--muted); font-size: 1rem; }
+.panel {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 1rem;
+  padding: 1rem 1rem 0.9rem;
+  margin-bottom: 0.85rem;
+}
+.panel-title {
+  margin: 0 0 0.85rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+.status-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+.flight-num {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.airline {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.cities {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+.arrow { color: var(--muted); font-weight: 400; }
+.status-block { text-align: left; }
+.status-main {
+  margin: 0;
+  font-size: clamp(1.6rem, 7vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.status-detail { margin: 0.25rem 0 0; color: var(--muted); font-size: 1rem; }
+.caution {
+  margin: 0.9rem 0 0;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  font-size: 0.88rem;
+  color: var(--fg);
+  line-height: 1.45;
+}
+.legs { display: grid; gap: 0.85rem; margin-bottom: 0.85rem; }
+@media (min-width: 640px) {
+  .legs { grid-template-columns: 1fr 1fr; }
+}
+.place-line { margin: 0; font-weight: 600; font-size: 1.05rem; }
+.airport-name { margin: 0.15rem 0 0.55rem; color: var(--muted); font-size: 0.95rem; }
+.date-line { margin: 0 0 0.65rem; font-size: 0.85rem; color: var(--muted); }
+.kv { margin: 0; }
+.kv > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.48rem 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.95rem;
+}
+.kv dt { margin: 0; color: var(--muted); font-weight: 400; }
+.kv dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.tracker {
+  border: 1px dashed var(--line);
+  border-radius: 0.85rem;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  min-height: 7rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.tracker-title { margin: 0; font-weight: 650; }
+.tracker-msg { margin: 0.4rem 0 0; color: var(--muted); font-size: 0.92rem; }
+.subhead {
+  margin: 0 0 0.45rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+.details-grid { display: grid; gap: 1rem; }
+@media (min-width: 560px) {
+  .details-grid { grid-template-columns: 1fr 1fr; }
+}
+.codeshares { list-style: none; margin: 0; padding: 0; }
+.codeshares li {
+  padding: 0.4rem 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.95rem;
+}
+.codeshares li:first-child { border-top: 0; padding-top: 0; }
+.aircraft { margin: 0; font-weight: 600; }
+.news { list-style: none; margin: 0; padding: 0; }
+.news li {
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--line);
+}
+.news li:first-child { border-top: 0; padding-top: 0; }
+.news a {
+  color: var(--fg);
+  text-decoration: none;
+  font-weight: 650;
+  font-size: 1.02rem;
+}
+.news a:active { opacity: 0.8; }
+.news-src { display: block; margin-top: 0.25rem; font-size: 0.75rem; color: var(--muted); }
+.news-sum { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.9rem; line-height: 1.4; }
+.foot {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.foot a { color: var(--muted); }
+.muted { color: var(--muted); }

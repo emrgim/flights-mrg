@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-/** Refresh public/ek030/status.json for EK030. Never invent times if fetch fails. */
-import { writeFile, readFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
+import { writeFile, readFile, mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const root = dirname(fileURLToPath(import.meta.url));
-const out = join(root, "public/ek030/status.json");
+const outDir = join(root, "public/flight-tracker/EK/030");
+const out = join(outDir, "status.json");
 
 async function fetchText(url) {
   const res = await fetch(url, {
@@ -25,51 +25,67 @@ function pick(re, text) {
 }
 
 async function main() {
+  await mkdir(outDir, { recursive: true });
   let prev = {};
   try { prev = JSON.parse(await readFile(out, "utf8")); } catch {}
 
-  const news = [];
   let status = prev.status || "Status unavailable";
   let statusDetail = prev.statusDetail || "";
-  let caution = prev.caution || null;
-  let departure = prev.departure || null;
-  let arrival = prev.arrival || null;
-  let aircraft = prev.aircraft || null;
+  let caution = null;
+  let departure = prev.departure || {
+    city: "London", region: "EN, GB", airportName: "London Heathrow Airport", airport: "LHR",
+    timezoneLabel: "BST", timezone: "Europe/London", terminal: "3", gate: null,
+  };
+  let arrival = prev.arrival || {
+    city: "Dubai", region: "AE", airportName: "Dubai International Airport", airport: "DXB",
+    timezoneLabel: "+04", timezone: "Asia/Dubai", terminal: "3", gate: null,
+  };
+  const news = [];
   const sources = [];
 
   try {
-    const fsHtml = await fetchText("https://www.flightstats.com/v2/flight-tracker/EK/030");
-    sources.push("https://www.flightstats.com/v2/flight-tracker/EK/030");
-    if (/On time/i.test(fsHtml)) { status = "Scheduled"; statusDetail = "On time (FlightStats)"; }
-    else if (/Delayed/i.test(fsHtml)) { status = "Delayed"; statusDetail = "Delayed (FlightStats)"; }
-    else if (/Landed|Arrived/i.test(fsHtml)) { status = "Landed"; statusDetail = "Arrived (FlightStats)"; }
-    else if (/Cancelled/i.test(fsHtml)) { status = "Cancelled"; statusDetail = "Cancelled (FlightStats)"; }
-    const depSched = pick(/Scheduled[\s\S]{0,40}?(\d{2}:\d{2})\s*BST/i, fsHtml);
-    const arrSched = pick(/Scheduled[\s\S]{0,40}?(\d{2}:\d{2})\s*\+04/i, fsHtml);
-    if (depSched) {
-      departure = {
-        airport: "LHR", terminal: "3", gate: null,
-        scheduledLocal: `2026-09-09T${depSched}:00+01:00`,
-        estimatedLocal: `2026-09-09T${depSched}:00+01:00`,
-        timezone: "Europe/London",
-      };
-    }
-    if (arrSched) {
-      arrival = {
-        airport: "DXB", terminal: "3", gate: null,
-        scheduledLocal: `2026-09-10T${arrSched}:00+04:00`,
-        estimatedLocal: `2026-09-10T${arrSched}:00+04:00`,
-        timezone: "Asia/Dubai",
-      };
-    }
-    if (/A380|388/i.test(fsHtml)) aircraft = "Airbus A380-800";
+    const html = await fetchText("https://www.flightstats.com/v2/flight-tracker/EK/030");
+    sources.push({ name: "FlightStats", url: "https://www.flightstats.com/v2/flight-tracker/EK/030" });
+    // Prefer the Flight Status panel; avoid matching other flights mentioned on the page
+    const panel = pick(/Flight Status([\s\S]{0,1200}?)Flight Departure Times/i, html) || html.slice(0, 4000);
+    if (/\bCancelled\b/i.test(panel) && !/On time/i.test(panel)) { status = "Cancelled"; statusDetail = ""; }
+    else if (/\bDiverted\b/i.test(panel)) { status = "Diverted"; statusDetail = ""; }
+    else if (/\b(?:Landed|Arrived)\b/i.test(panel)) { status = "Landed"; statusDetail = ""; }
+    else if (/Delayed by\s+([^\n<]+)/i.test(panel)) { status = "Delayed"; statusDetail = pick(/Delayed by\s+([^\n<]+)/i, panel) || "Delayed"; }
+    else if (/\bDelayed\b/i.test(panel) && !/On time/i.test(panel)) { status = "Delayed"; statusDetail = "Delayed"; }
+    else if (/On time/i.test(panel)) { status = "Scheduled"; statusDetail = "On time"; }
+    else if (/\bScheduled\b/i.test(panel)) { status = "Scheduled"; statusDetail = statusDetail || ""; }
+
+    const depT = pick(/Flight Departure Times[\s\S]{0,200}?Estimated[\s\S]{0,40}?(\d{2}:\d{2})\s*BST/i, html)
+      || pick(/Scheduled[\s\S]{0,40}?(\d{2}:\d{2})\s*BST/i, html);
+    const depS = pick(/Flight Departure Times[\s\S]{0,120}?Scheduled[\s\S]{0,40}?(\d{2}:\d{2})\s*BST/i, html) || depT;
+    const arrT = pick(/Flight Arrival Times[\s\S]{0,200}?Estimated[\s\S]{0,40}?(\d{2}:\d{2})\s*\+04/i, html)
+      || pick(/Scheduled[\s\S]{0,40}?(\d{2}:\d{2})\s*\+04/i, html);
+    const arrS = pick(/Flight Arrival Times[\s\S]{0,120}?Scheduled[\s\S]{0,40}?(\d{2}:\d{2})\s*\+04/i, html) || arrT;
+    const depDate = pick(/Flight Departure Times[\s\S]{0,80}?(\d{2}-[A-Za-z]{3}-\d{4})/i, html);
+    const arrDate = pick(/Flight Arrival Times[\s\S]{0,80}?(\d{2}-[A-Za-z]{3}-\d{4})/i, html);
+
+    departure = {
+      ...departure,
+      scheduled: depS || departure.scheduled,
+      estimated: depT || departure.estimated,
+      dateLabel: depDate || departure.dateLabel,
+      timezoneLabel: "BST",
+    };
+    arrival = {
+      ...arrival,
+      scheduled: arrS || arrival.scheduled,
+      estimated: arrT || arrival.estimated,
+      dateLabel: arrDate || arrival.dateLabel,
+      timezoneLabel: "+04",
+    };
   } catch (e) {
     statusDetail = (statusDetail ? statusDetail + " · " : "") + "FlightStats fetch failed";
   }
 
   try {
     const h = await fetchText("https://www.heathrow.com/departures/terminal-3/flight-details/EK030");
-    sources.push("https://www.heathrow.com/departures/terminal-3/flight-details/EK030");
+    sources.push({ name: "Heathrow", url: "https://www.heathrow.com/departures/terminal-3/flight-details/EK030" });
     if (/NATS|knock-on disruption|technical issue/i.test(h)) {
       caution = "Heathrow recovering from NATS ATC issue; knock-on disruption possible. Confirm with Emirates before going to the airport.";
       news.push({
@@ -84,36 +100,46 @@ async function main() {
   try {
     const nUrl = "https://www.thenationalnews.com/travel/2026/09/09/dubai-abu-dhabi-flight-delays-cancellations/";
     const n = await fetchText(nUrl);
-    sources.push(nUrl);
+    sources.push({ name: "The National", url: nUrl });
     if (/EK030/i.test(n)) {
       news.push({
         title: "Dubai/Abu Dhabi delays after Heathrow outage",
         url: nUrl,
         source: "The National",
-        summary: "EK030 from Heathrow listed among Emirates services running behind schedule; check live status.",
+        summary: "EK030 from Heathrow listed among Emirates services running behind schedule.",
       });
-      if (status === "Scheduled") {
-        caution = (caution ? caution + " " : "") + "Press reports list EK030 among delayed services — treat on-time cautiously.";
-      }
+      caution = (caution ? caution + " " : "") + "Press lists EK030 among delayed services — treat on-time cautiously.";
     }
   } catch {}
 
   const payload = {
-    flight: "EK030",
-    airline: "Emirates",
-    route: { from: "LHR", to: "DXB", fromName: "London Heathrow", toName: "Dubai International" },
+    airlineCode: "EK",
+    flightNumber: "030",
+    airlineName: "Emirates",
     status,
     statusDetail,
-    caution,
+    date: new Date().toISOString().slice(0, 10),
     departure,
     arrival,
-    aircraft,
-    codeshares: ["FI6036", "QF8030"],
-    updatedAt: new Date().toISOString(),
+    tracking: {
+      available: false,
+      message: "Positional tracking not available yet. Tracking will begin after departure.",
+    },
+    codeshares: [
+      { airline: "Icelandair", flight: "FI 6036" },
+      { airline: "Qantas", flight: "QF 8030" },
+    ],
+    aircraft: { code: "388", description: "Airbus A380-800 Passenger" },
+    caution,
     news,
+    updatedAt: new Date().toISOString(),
     sources,
   };
+
   await writeFile(out, JSON.stringify(payload, null, 2));
+  // keep legacy ek030 status in sync for old bookmarks during redirect era
+  await mkdir(join(root, "public/ek030"), { recursive: true });
+  await writeFile(join(root, "public/ek030/status.json"), JSON.stringify(payload, null, 2));
   console.log("Wrote", out, status, statusDetail);
 }
 
