@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Emirates EK030 live status — London Heathrow (LHR) to Dubai (DXB)" />
+  <title>EK030 · LHR → DXB</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header class="top">
+      <p class="airline">Emirates</p>
+      <h1 class="flight">EK030</h1>
+      <p class="route" id="route">LHR → DXB</p>
+    </header>
+
+    <section class="status-card" aria-live="polite">
+      <p class="status-label">Status</p>
+      <p class="status-value" id="status">Loading…</p>
+      <p class="status-sub" id="statusSub"></p>
+    </section>
+
+    <section class="times" id="times">
+      <article class="leg">
+        <h2>Departure</h2>
+        <p class="code" id="depCode">LHR</p>
+        <p class="name" id="depName">London Heathrow</p>
+        <dl>
+          <div><dt>Scheduled</dt><dd id="depSched">—</dd></div>
+          <div><dt>Estimated</dt><dd id="depEst">—</dd></div>
+          <div><dt>Actual</dt><dd id="depAct">—</dd></div>
+          <div><dt>Terminal / Gate</dt><dd id="depTG">—</dd></div>
+        </dl>
+      </article>
+      <article class="leg">
+        <h2>Arrival</h2>
+        <p class="code" id="arrCode">DXB</p>
+        <p class="name" id="arrName">Dubai International</p>
+        <dl>
+          <div><dt>Scheduled</dt><dd id="arrSched">—</dd></div>
+          <div><dt>Estimated</dt><dd id="arrEst">—</dd></div>
+          <div><dt>Actual</dt><dd id="arrAct">—</dd></div>
+          <div><dt>Terminal / Gate</dt><dd id="arrTG">—</dd></div>
+        </dl>
+      </article>
+    </section>
+
+    <p class="meta" id="meta">Updated — · Auto-refresh 60s</p>
+
+    <section class="news">
+      <h2>LHR / DXB traffic &amp; news</h2>
+      <ul id="newsList" class="news-list">
+        <li class="muted">Loading news…</li>
+      </ul>
+    </section>
+
+    <footer class="foot">
+      <p id="sources"></p>
+      <p class="muted">Not affiliated with Emirates. Data may be delayed.</p>
+    </footer>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>

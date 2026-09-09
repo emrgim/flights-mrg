@@ -1,0 +1,58 @@
+{
+  "flight": "EK030",
+  "airline": "Emirates",
+  "route": {
+    "from": "LHR",
+    "to": "DXB",
+    "fromName": "London Heathrow",
+    "toName": "Dubai International"
+  },
+  "status": "Scheduled",
+  "statusDetail": "On time (FlightStats)",
+  "caution": "Heathrow recovering from NATS ATC issue; knock-on disruption possible. Confirm with Emirates before going to the airport. Press reports list EK030 among delayed services — treat on-time cautiously.",
+  "departure": {
+    "airport": "LHR",
+    "name": "London Heathrow",
+    "terminal": null,
+    "gate": null,
+    "scheduled": null,
+    "estimated": null,
+    "actual": null,
+    "timezone": "Europe/London"
+  },
+  "arrival": {
+    "airport": "DXB",
+    "name": "Dubai International",
+    "terminal": null,
+    "gate": null,
+    "scheduled": null,
+    "estimated": null,
+    "actual": null,
+    "timezone": "Asia/Dubai"
+  },
+  "aircraft": "Airbus A380-800",
+  "codeshares": [
+    "FI6036",
+    "QF8030"
+  ],
+  "updatedAt": "2026-09-09T08:49:37.650Z",
+  "news": [
+    {
+      "title": "NATS air traffic control technical issue — Heathrow",
+      "url": "https://www.heathrow.com/departures/terminal-3/flight-details/EK030",
+      "source": "Heathrow Airport",
+      "summary": "Operations recovering; some knock-on disruption expected as airlines reposition aircraft and crew."
+    },
+    {
+      "title": "Dubai/Abu Dhabi delays after Heathrow outage",
+      "url": "https://www.thenationalnews.com/travel/2026/09/09/dubai-abu-dhabi-flight-delays-cancellations/",
+      "source": "The National",
+      "summary": "EK030 from Heathrow listed among Emirates services running behind schedule; check live status."
+    }
+  ],
+  "sources": [
+    "https://www.flightstats.com/v2/flight-tracker/EK/030",
+    "https://www.heathrow.com/departures/terminal-3/flight-details/EK030",
+    "https://www.thenationalnews.com/travel/2026/09/09/dubai-abu-dhabi-flight-delays-cancellations/"
+  ]
+}

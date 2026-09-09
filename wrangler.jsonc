@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "flights-mrg",
+  "compatibility_date": "2024-11-01",
+  // Static assets only — no Worker script required for SPA hosting.
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "single-page-application",
+    "html_handling": "auto-trailing-slash"
+  },
+  "routes": [
+    {
+      "pattern": "flights.mrg.im/*",
+      "zone_name": "mrg.im"
+    }
+  ],
+  "workers_dev": true
+}

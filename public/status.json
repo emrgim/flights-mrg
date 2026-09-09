@@ -1,0 +1,34 @@
+{
+  "flight": "EK030",
+  "airline": "Emirates",
+  "route": { "from": "LHR", "to": "DXB", "label": "London Heathrow → Dubai" },
+  "status": "Status unavailable",
+  "statusCode": "unavailable",
+  "departure": {
+    "airport": "LHR",
+    "name": "London Heathrow",
+    "terminal": null,
+    "gate": null,
+    "scheduled": null,
+    "estimated": null,
+    "actual": null,
+    "timezone": "Europe/London"
+  },
+  "arrival": {
+    "airport": "DXB",
+    "name": "Dubai International",
+    "terminal": null,
+    "gate": null,
+    "scheduled": null,
+    "estimated": null,
+    "actual": null,
+    "timezone": "Asia/Dubai"
+  },
+  "aircraft": null,
+  "delayMinutes": null,
+  "updatedAt": null,
+  "available": false,
+  "error": "Awaiting first update.mjs run",
+  "news": [],
+  "sources": []
+}
