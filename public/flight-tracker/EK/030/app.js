@@ -296,6 +296,28 @@
   let drRaf = 0;
   let drLastTs = 0;
   let lastFix = null; // last ADS-B fix for error check
+  let cachedPositionAircraft = null; // last good position.json payload
+
+  function normalizePositionPayload(raw) {
+    if (!raw || typeof raw !== "object") return null;
+    const pos =
+      raw.position && typeof raw.position === "object" && raw.position !== null ? raw.position : raw;
+    if (!Number.isFinite(Number(pos.lat)) || !Number.isFinite(Number(pos.lon))) return null;
+    return {
+      registration: raw.registration || null,
+      icao24: raw.icao24 || null,
+      position: {
+        lat: Number(pos.lat),
+        lon: Number(pos.lon),
+        altitude: pos.altitude != null ? Number(pos.altitude) : null,
+        heading: pos.heading != null ? Number(pos.heading) : null,
+        speed: pos.speed != null ? Number(pos.speed) : null,
+        seenAt: pos.seenAt || raw.updatedAt || new Date().toISOString(),
+        onGround: Boolean(pos.onGround),
+        source: pos.source || "adsb",
+      },
+    };
+  }
 
   function planeSvg(heading) {
     // Outer div pulses; inner rotates with heading (don't fight transform)
@@ -358,7 +380,14 @@
 
   function updateMap(d) {
     d = d || {};
-    const ac = d.aircraft || {};
+    let ac = d.aircraft || {};
+    if (!ac.position && cachedPositionAircraft && cachedPositionAircraft.position) {
+      ac = {
+        registration: ac.registration || cachedPositionAircraft.registration,
+        icao24: ac.icao24 || cachedPositionAircraft.icao24,
+        position: cachedPositionAircraft.position,
+      };
+    }
     const pos = ac.position || null;
     const reg = ac.registration || null;
     const m = ensureMap();
@@ -961,6 +990,11 @@
     });
   }
 
+  function isEkFlight(flight) {
+    const f = String(flight || "");
+    return /^EK0*30$/i.test(f) || /^EK\s*30$/i.test(f);
+  }
+
   function paintBoard(board) {
     board = board || {};
     const deps = Array.isArray(board.departures) ? board.departures : [];
@@ -989,57 +1023,70 @@
         " nearby" +
         when;
     }
-    const body = document.getElementById("depBoardBody");
-    if (body) {
-      body.innerHTML = "";
+
+    const cards = document.getElementById("depBoardCards");
+    if (cards) {
+      cards.innerHTML = "";
       if (!deps.length) {
-        body.innerHTML = '<tr><td colspan="7" class="muted">No departure rows (source offline or empty window).</td></tr>';
+        cards.innerHTML =
+          '<p class="board-empty muted">No departure rows (source offline or empty window).</p>';
       } else {
         deps.forEach(function (r) {
-          const tr = document.createElement("tr");
           const flight = String(r.flight || "");
-          if (/^EK0*30$/i.test(flight) || /^EK\s*30$/i.test(flight)) tr.classList.add("is-ek");
           const delay = Number(r.delayMin);
           const late = Number.isFinite(delay) && delay >= 15;
-          if (late || /delay/i.test(String(r.status || ""))) tr.classList.add("is-delayed");
-          const delayTd = fmtDelay(r.delayMin);
           const rowDate = r.scheduledDate || board.date || londonTodayYmd();
-          tr.innerHTML =
-            "<td><strong>" +
+          const gateBits = [];
+          if (r.terminal) gateBits.push("T" + String(r.terminal).replace(/^T/i, ""));
+          if (r.gate) gateBits.push("Gate " + r.gate);
+
+          const article = document.createElement("article");
+          article.className = "dep-card";
+          if (isEkFlight(flight)) article.classList.add("is-ek");
+          if (late || /delay/i.test(String(r.status || ""))) article.classList.add("is-delayed");
+
+          article.innerHTML =
+            '<header class="dep-card-head">' +
+            '<strong class="dep-flight">' +
             escapeHtml(flight || "—") +
-            "</strong></td>" +
-            '<td class="dest-cell">' +
-            escapeHtml(r.destination || "—") +
-            "</td>" +
-            '<td class="time-cell">' +
-            boardTimeCell(r.scheduled, rowDate, board) +
-            "</td>" +
-            '<td class="time-cell">' +
-            boardTimeCell(r.estimated, rowDate, board) +
-            "</td>" +
-            '<td class="status-cell">' +
-            escapeHtml(r.status || "—") +
-            "</td>" +
-            "<td>" +
-            escapeHtml(r.gate || "—") +
-            "</td>" +
-            '<td class="delay-cell' +
+            "</strong>" +
+            '<span class="dep-status' +
             (late ? " is-late" : "") +
             '">' +
-            escapeHtml(delayTd) +
-            "</td>";
-          body.appendChild(tr);
+            escapeHtml(r.status || "—") +
+            "</span>" +
+            "</header>" +
+            '<p class="dep-dest">' +
+            escapeHtml(r.destination || "—") +
+            "</p>" +
+            '<dl class="dep-card-kv">' +
+            "<div><dt>Scheduled</dt><dd>" +
+            boardTimeCell(r.scheduled, rowDate, board) +
+            "</dd></div>" +
+            "<div><dt>Estimated</dt><dd>" +
+            boardTimeCell(r.estimated, rowDate, board) +
+            "</dd></div>" +
+            (gateBits.length
+              ? "<div><dt>Gate</dt><dd>" + escapeHtml(gateBits.join(" · ")) + "</dd></div>"
+              : "") +
+            '<div><dt>Delay</dt><dd class="dep-delay' +
+            (late ? " is-late" : "") +
+            '">' +
+            escapeHtml(fmtDelay(r.delayMin)) +
+            "</dd></div>" +
+            "</dl>";
+          cards.appendChild(article);
         });
       }
     }
-    const nbody = document.getElementById("nearbyBoardBody");
-    if (nbody) {
-      nbody.innerHTML = "";
+
+    const ncards = document.getElementById("nearbyBoardCards");
+    if (ncards) {
+      ncards.innerHTML = "";
       if (!nearby.length) {
-        nbody.innerHTML = '<tr><td colspan="5" class="muted">No ADS-B traffic in range.</td></tr>';
+        ncards.innerHTML = '<p class="board-empty muted">No ADS-B traffic in range.</p>';
       } else {
         nearby.forEach(function (a) {
-          const tr = document.createElement("tr");
           const alt =
             a.onGround || a.altitude === 0
               ? "GND"
@@ -1047,23 +1094,29 @@
                 ? Math.round(Number(a.altitude)) + " ft"
                 : "—";
           const gs = a.speed != null ? Math.round(Number(a.speed)) + " kt" : "—";
-          tr.innerHTML =
-            "<td>" +
+          const article = document.createElement("article");
+          article.className = "nearby-card";
+          article.innerHTML =
+            '<header class="nearby-card-head">' +
+            "<strong>" +
             escapeHtml(a.flight || "—") +
-            "</td>" +
-            "<td>" +
+            "</strong>" +
+            "<span>" +
             escapeHtml(a.registration || "—") +
-            "</td>" +
-            "<td>" +
+            "</span>" +
+            "</header>" +
+            '<dl class="nearby-card-kv">' +
+            "<div><dt>Alt</dt><dd>" +
             escapeHtml(alt) +
-            "</td>" +
-            "<td>" +
+            "</dd></div>" +
+            "<div><dt>GS</dt><dd>" +
             escapeHtml(gs) +
-            "</td>" +
-            "<td>" +
+            "</dd></div>" +
+            "<div><dt>State</dt><dd>" +
             (a.onGround ? "ground" : "airborne") +
-            "</td>";
-          nbody.appendChild(tr);
+            "</dd></div>" +
+            "</dl>";
+          ncards.appendChild(article);
         });
       }
     }
@@ -1127,25 +1180,20 @@
     try {
       const res = await fetch(POSITION_URL + "?t=" + Date.now(), { cache: "no-store" });
       if (!res.ok) return;
-      const p = await res.json();
-      if (!p || !Number.isFinite(Number(p.lat))) return;
-      updateMap({
-        aircraft: {
-          registration: p.registration,
-          icao24: p.icao24,
-          position: {
-            lat: p.lat,
-            lon: p.lon,
-            altitude: p.altitude,
-            heading: p.heading,
-            speed: p.speed,
-            seenAt: p.seenAt,
-            onGround: p.onGround,
-            source: p.source,
-          },
-        },
-      });
+      const norm = normalizePositionPayload(await res.json());
+      if (!norm) return;
+      cachedPositionAircraft = norm;
+      updateMap({ aircraft: norm });
     } catch (e) {}
   }
+
+  window.addEventListener("load", function () {
+    try {
+      if (map) map.invalidateSize();
+      else ensureMap();
+    } catch (e) {}
+    loadPositionOnly();
+  });
+  loadPositionOnly();
   setInterval(loadPositionOnly, POSITION_MS);
 })();
