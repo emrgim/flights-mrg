@@ -56,14 +56,14 @@
     "registration": "A6-EVS",
     "icao24": "89655f",
     "position": {
-      "lat": 46.868958,
-      "lon": 17.215919,
-      "altitude": 39000,
-      "heading": 127.64,
-      "speed": 519,
-      "seenAt": "2026-09-09T17:48:57.206Z",
+      "lat": 36.084688,
+      "lon": 33.753565,
+      "altitude": 41000,
+      "heading": 128.45,
+      "speed": 545,
+      "seenAt": "2026-09-09T19:44:37.027Z",
       "onGround": false,
-      "source": "adsb.lol-reg"
+      "source": "adsb.lol-callsign"
     }
   },
   "otherDays": [
@@ -205,19 +205,11 @@
       "fetchedAt": "2026-09-09T17:48:46.188Z"
     }
   ],
-  "updatedAt": "2026-09-09T17:48:57.415Z",
+  "updatedAt": "2026-09-09T19:44:37.028Z",
   "sources": [
     {
       "name": "FlightStats",
       "url": "https://www.flightstats.com/v2/flight-tracker/EK/030"
-    },
-    {
-      "name": "Heathrow",
-      "url": "https://www.heathrow.com/departures"
-    },
-    {
-      "name": "The National",
-      "url": "https://www.thenationalnews.com/travel/2026/09/09/dubai-abu-dhabi-flight-delays-cancellations/"
     },
     {
       "name": "Flightradar24",
@@ -226,6 +218,14 @@
     {
       "name": "adsb.lol",
       "url": "https://api.adsb.lol/"
+    },
+    {
+      "name": "Heathrow",
+      "url": "https://www.heathrow.com/departures"
+    },
+    {
+      "name": "The National",
+      "url": "https://www.thenationalnews.com/travel/2026/09/09/dubai-abu-dhabi-flight-delays-cancellations/"
     }
   ]
 }
