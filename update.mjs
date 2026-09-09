@@ -655,6 +655,7 @@ async function fetchHeathrowDepartures() {
     destination: r.destination,
     scheduled: r.scheduled,
     estimated: r.estimated,
+    scheduledDate: r.scheduledIso ? r.scheduledIso.slice(0, 10) : null,
     status: r.status,
     gate: r.gate,
     terminal: r.terminal,
@@ -696,6 +697,8 @@ async function buildLhrBoard() {
   return {
     airport: "LHR",
     terminal: "3",
+    date: todayYmdInTz("Europe/London"),
+    timezone: "Europe/London",
     updatedAt: new Date().toISOString(),
     departures,
     nearby,
@@ -722,22 +725,52 @@ async function main() {
   const note = flight.flightNote || {};
   const otherDays = next?.props?.initialState?.flightTracker?.otherDays || [];
 
+  const newsFetchedAt = new Date().toISOString();
+  let heathrowDisruption = false;
+
   try {
-    const h = await fetchText("https://www.heathrow.com/departures/terminal-3/flight-details/EK030");
-    sources.push({ name: "Heathrow", url: "https://www.heathrow.com/departures/terminal-3/flight-details/EK030" });
-    if (/NATS|knock-on disruption|technical issue/i.test(h)) {
-      caution =
-        "Heathrow recovering from NATS ATC issue; knock-on disruption possible. Confirm with Emirates before going to the airport.";
+    const h = await fetchText("https://www.heathrow.com/departures");
+    sources.push({ name: "Heathrow", url: "https://www.heathrow.com/departures" });
+    if (/NATS|knock-on disruption|technical issue|operations are recovering|operating today/i.test(h)) {
+      heathrowDisruption = true;
+      const resolved = /resolved|recovering|operating today/i.test(h);
+      caution = resolved
+        ? "Heathrow operations recovering after Tuesday's NATS issue (resolved); flights operating today with knock-on cancellations/delays possible. Confirm with Emirates before travelling."
+        : "Heathrow disruption from NATS ATC issue; knock-on delays possible. Confirm with Emirates before going to the airport.";
       news.push({
-        title: "NATS air traffic control technical issue — Heathrow",
-        url: "https://www.heathrow.com/departures/terminal-3/flight-details/EK030",
+        title: "Heathrow operations recovering — flights operating",
+        url: "https://www.heathrow.com/departures",
         source: "Heathrow Airport",
         airport: "LHR",
         summary:
-          "Operations recovering; some knock-on disruption expected as airlines reposition aircraft and crew.",
+          "NATS technical issue resolved Tuesday evening. Flights operating today; knock-on disruption expected as airlines reposition aircraft and crew. Check with airline before travelling.",
+        fetchedAt: newsFetchedAt,
       });
     }
-  } catch {}
+  } catch (e) {
+    console.warn("Heathrow departures scrape failed:", e.message || e);
+  }
+
+  if (heathrowDisruption) {
+    news.push({
+      title: "UK flights resume but airports warn of ongoing disruption",
+      url: "https://www.reuters.com/world/uk/uk-flights-resume-airports-warn-ongoing-disruption-air-traffic-outage-2026-09-09/",
+      source: "Reuters",
+      airport: "LHR",
+      summary:
+        "British airports resumed flights early Wednesday after NATS resolved Tuesday's air-traffic failure; hubs warn recovery will take time with aircraft and crews out of position.",
+      fetchedAt: newsFetchedAt,
+    });
+    news.push({
+      title: "Hundreds more Heathrow flights cancelled as network recovers",
+      url: "https://www.standard.co.uk/news/london/heathrow-flights-cancelled-latest-wednesday-gatwick-nats-b1295995.html",
+      source: "Evening Standard",
+      airport: "LHR",
+      summary:
+        "Wednesday knock-on cancellations continue at Heathrow after NATS resolved the Tuesday outage; passengers advised to check with their airline before travelling.",
+      fetchedAt: newsFetchedAt,
+    });
+  }
 
   try {
     const nUrl =
@@ -750,13 +783,17 @@ async function main() {
         url: nUrl,
         source: "The National",
         airport: "LHR",
-        summary: "EK030 from Heathrow listed among Emirates services running behind schedule.",
+        summary:
+          "EK030 from Heathrow listed among Emirates services running behind schedule amid knock-on UK disruption.",
+        fetchedAt: newsFetchedAt,
       });
       caution =
         (caution ? caution + " " : "") +
         "Press lists EK030 among delayed services — treat on-time cautiously.";
     }
-  } catch {}
+  } catch (e) {
+    console.warn("The National scrape failed:", e.message || e);
+  }
 
   const flightDate = (dep.date || "").slice(0, 10) || todayYmdInTz("Europe/London");
   const baseAc = {
