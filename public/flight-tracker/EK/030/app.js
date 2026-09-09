@@ -1,7 +1,79 @@
 (function () {
   const STATUS_URL = "./status.json";
   const REFRESH_MS = 60000;
+  const ROTATE_MS = 5500;
   const $ = (id) => document.getElementById(id);
+  let depNewsItems = [];
+  let depNewsIndex = 0;
+  let depNewsTimer = null;
+
+  function departureNews(d) {
+    const airport = (d.departure?.airport || "LHR").toUpperCase();
+    const keys = {
+      LHR: [/heathrow/i, /\bLHR\b/i, /NATS/i, /London.*airport/i, /UK air/i],
+      DXB: [/dubai/i, /\bDXB\b/i],
+    };
+    const matchers = keys[airport] || [/./];
+    const news = Array.isArray(d.news) ? d.news : [];
+    const tagged = news.filter((n) => (n.airport || "").toUpperCase() === airport);
+    const scored = news.filter((n) => {
+      const blob = `${n.title || ""} ${n.summary || ""} ${n.source || ""}`;
+      return matchers.some((re) => re.test(blob));
+    });
+    const list = tagged.length ? tagged : scored.length ? scored : news;
+    return { airport, list };
+  }
+
+  function paintDepNews(i) {
+    if (!depNewsItems.length) {
+      $("depNewsSource").textContent = "—";
+      $("depNewsTitle").textContent = "No departure-airport headlines right now.";
+      $("depNewsSlide").removeAttribute("href");
+      $("depNewsDots").innerHTML = "";
+      return;
+    }
+    const n = depNewsItems[i % depNewsItems.length];
+    const slide = $("depNewsSlide");
+    slide.classList.add("is-fading");
+    slide.classList.remove("is-shown");
+    setTimeout(() => {
+      $("depNewsSource").textContent = n.source || "News";
+      $("depNewsTitle").textContent = n.title || "Untitled";
+      if (n.url) {
+        slide.href = n.url;
+      } else {
+        slide.removeAttribute("href");
+      }
+      [...$("depNewsDots").children].forEach((dot, di) => {
+        dot.setAttribute("aria-current", di === i % depNewsItems.length ? "true" : "false");
+      });
+      slide.classList.remove("is-fading");
+      slide.classList.add("is-shown");
+    }, 180);
+  }
+
+  function startDepNewsRotation(d) {
+    const { airport, list } = departureNews(d);
+    $("depNewsAirport").textContent = airport;
+    depNewsItems = list.slice(0, 8);
+    depNewsIndex = 0;
+    const dots = $("depNewsDots");
+    dots.innerHTML = "";
+    depNewsItems.forEach((_, i) => {
+      const s = document.createElement("span");
+      if (i === 0) s.setAttribute("aria-current", "true");
+      dots.appendChild(s);
+    });
+    paintDepNews(0);
+    if (depNewsTimer) clearInterval(depNewsTimer);
+    if (depNewsItems.length > 1) {
+      depNewsTimer = setInterval(() => {
+        depNewsIndex = (depNewsIndex + 1) % depNewsItems.length;
+        paintDepNews(depNewsIndex);
+      }, ROTATE_MS);
+    }
+  }
+
 
   function timeWithTz(t, tzLabel) {
     if (!t) return "—";
@@ -26,6 +98,8 @@
     } else {
       $("caution").hidden = true;
     }
+
+    startDepNewsRotation(d);
 
     const dep = d.departure || {};
     const arr = d.arrival || {};

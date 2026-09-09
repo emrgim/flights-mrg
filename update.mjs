@@ -67,6 +67,7 @@ async function main() {
         title: "NATS air traffic control technical issue — Heathrow",
         url: "https://www.heathrow.com/departures/terminal-3/flight-details/EK030",
         source: "Heathrow Airport",
+        airport: "LHR",
         summary:
           "Operations recovering; some knock-on disruption expected as airlines reposition aircraft and crew.",
       });
@@ -83,6 +84,7 @@ async function main() {
         title: "Dubai/Abu Dhabi delays after Heathrow outage",
         url: nUrl,
         source: "The National",
+        airport: "LHR",
         summary: "EK030 from Heathrow listed among Emirates services running behind schedule.",
       });
       caution =
