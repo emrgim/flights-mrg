@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { writeFile, mkdir } from "node:fs/promises";
+import { readFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -229,7 +230,113 @@ function pickAcFromAdsbResponse(data, registration, icao24) {
   };
 }
 
+
+const OPENSKY_TOKEN_URL =
+  "https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token";
+let _openskyToken = null;
+let _openskyTokenExpiry = 0;
+
+function loadOpenSkyCreds() {
+  const id = (process.env.OPENSKY_CLIENT_ID || "").trim();
+  const secret = (process.env.OPENSKY_CLIENT_SECRET || "").trim();
+  if (id && secret) return { id, secret };
+  try {
+    const envPath = "/home/box/.config/opensky/env";
+    if (!existsSync(envPath)) return null;
+    const text = readFileSync(envPath, "utf8");
+    const map = Object.fromEntries(
+      text
+        .split("\n")
+        .map((l) => l.trim())
+        .filter((l) => l && !l.startsWith("#") && l.includes("="))
+        .map((l) => {
+          const i = l.indexOf("=");
+          return [l.slice(0, i).trim(), l.slice(i + 1).trim()];
+        })
+    );
+    if (map.OPENSKY_CLIENT_ID && map.OPENSKY_CLIENT_SECRET) {
+      return { id: map.OPENSKY_CLIENT_ID, secret: map.OPENSKY_CLIENT_SECRET };
+    }
+  } catch {}
+  return null;
+}
+
+async function getOpenSkyToken() {
+  const creds = loadOpenSkyCreds();
+  if (!creds) return null;
+  const now = Date.now();
+  if (_openskyToken && now < _openskyTokenExpiry - 60_000) return _openskyToken;
+  const body = new URLSearchParams({
+    grant_type: "client_credentials",
+    client_id: creds.id,
+    client_secret: creds.secret,
+  });
+  const res = await fetch(OPENSKY_TOKEN_URL, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body,
+    signal: AbortSignal.timeout(20000),
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    throw new Error(`OpenSky token ${res.status}: ${detail.slice(0, 200)}`);
+  }
+  const data = await res.json();
+  _openskyToken = data.access_token;
+  const expiresIn = Number(data.expires_in) || 1800;
+  _openskyTokenExpiry = now + expiresIn * 1000;
+  return _openskyToken;
+}
+
+async function fetchOpenSkyState(icao24) {
+  const headers = {
+    "user-agent":
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+    accept: "application/json",
+  };
+  let authMode = "anon";
+  try {
+    const token = await getOpenSkyToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+      authMode = "oauth";
+    }
+  } catch (e) {
+    console.warn("OpenSky OAuth skipped:", e.message || e);
+  }
+  const url = `https://opensky-network.org/api/states/all?icao24=${encodeURIComponent(icao24.toLowerCase())}`;
+  const res = await fetch(url, { headers, signal: AbortSignal.timeout(20000) });
+  if (!res.ok) throw new Error(`opensky ${res.status}`);
+  const data = await res.json();
+  const st = (data?.states || [])[0];
+  if (!st) return null;
+  const lon = Number(st[5]);
+  const lat = Number(st[6]);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  return {
+    lat,
+    lon,
+    altitude: st[7] != null ? Math.round(Number(st[7]) / 0.3048) : null,
+    heading: st[10] != null ? Number(st[10]) : null,
+    speed: st[9] != null ? Number(st[9]) * 1.94384 : null,
+    seenAt: new Date((st[3] || st[4] || Date.now() / 1000) * 1000).toISOString(),
+    onGround: Boolean(st[8]),
+    source: authMode === "oauth" ? "opensky-oauth" : "opensky-anon",
+  };
+}
+
+
 async function resolvePosition(registration, icao24) {
+  // Prefer authenticated OpenSky when OAuth client is configured (GEV-style)
+  if (icao24 && loadOpenSkyCreds()) {
+    try {
+      const pos = await fetchOpenSkyState(icao24);
+      if (pos) return pos;
+    } catch (e) {
+      console.warn("opensky-oauth failed:", e.message || e);
+    }
+  }
+
   const attempts = [];
   if (registration) {
     attempts.push({
@@ -266,31 +373,11 @@ async function resolvePosition(registration, icao24) {
     }
   }
 
-  // OpenSky by icao24
+  // Anonymous OpenSky last resort
   if (icao24) {
     try {
-      const data = await fetchJson(
-        `https://opensky-network.org/api/states/all?icao24=${encodeURIComponent(icao24.toLowerCase())}`,
-        { timeout: 20000 }
-      );
-      const st = (data?.states || [])[0];
-      if (st) {
-        // [icao24, callsign, origin_country, time_position, last_contact, lon, lat, baro_altitude, on_ground, velocity, true_track, ...]
-        const lon = Number(st[5]);
-        const lat = Number(st[6]);
-        if (Number.isFinite(lat) && Number.isFinite(lon)) {
-          return {
-            lat,
-            lon,
-            altitude: st[7] != null ? Math.round(Number(st[7]) / 0.3048) : null, // m → ft
-            heading: st[10] != null ? Number(st[10]) : null,
-            speed: st[9] != null ? Number(st[9]) * 1.94384 : null, // m/s → kt
-            seenAt: new Date((st[3] || st[4] || Date.now() / 1000) * 1000).toISOString(),
-            onGround: Boolean(st[8]),
-            source: "opensky",
-          };
-        }
-      }
+      const pos = await fetchOpenSkyState(icao24);
+      if (pos) return pos;
     } catch (e) {
       console.warn("opensky failed:", e.message || e);
     }
