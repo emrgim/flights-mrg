@@ -3,7 +3,7 @@
   "terminal": "3",
   "date": "2026-09-10",
   "timezone": "Europe/London",
-  "updatedAt": "2026-09-10T04:23:21.510Z",
+  "updatedAt": "2026-09-10T04:39:09.246Z",
   "departures": [
     {
       "flight": "EK030",
@@ -141,12 +141,12 @@
       "flight": "AA135",
       "destination": "Los Angeles · LAX",
       "scheduled": "08:20",
-      "estimated": "09:50",
+      "estimated": "08:45",
       "scheduledDate": "2026-09-10",
-      "status": "Delayed 09:50",
+      "status": "Delayed 08:45",
       "gate": null,
       "terminal": "3",
-      "delayMin": 90
+      "delayMin": 25
     },
     {
       "flight": "BA888",
@@ -166,7 +166,7 @@
       "estimated": "08:25",
       "scheduledDate": "2026-09-10",
       "status": "On time 08:25",
-      "gate": null,
+      "gate": "11",
       "terminal": "3",
       "delayMin": 0
     },
@@ -273,12 +273,12 @@
       "flight": "AA087",
       "destination": "Chicago · ORD",
       "scheduled": "09:45",
-      "estimated": "10:50",
+      "estimated": "10:45",
       "scheduledDate": "2026-09-10",
-      "status": "Delayed 10:50",
+      "status": "Delayed 10:45",
       "gate": null,
       "terminal": "3",
-      "delayMin": 65
+      "delayMin": 60
     },
     {
       "flight": "VS007",
@@ -490,64 +490,7 @@
       "delayMin": 0
     }
   ],
-  "nearby": [
-    {
-      "flight": "ACA832",
-      "registration": "C-FNNU",
-      "altitude": 38000,
-      "speed": 498,
-      "onGround": false
-    },
-    {
-      "flight": "CPA251",
-      "registration": "B-KPW",
-      "altitude": 3300,
-      "speed": 184,
-      "onGround": false
-    },
-    {
-      "flight": "DLH411",
-      "registration": "D-AIVE",
-      "altitude": 41000,
-      "speed": 490,
-      "onGround": false
-    },
-    {
-      "flight": null,
-      "registration": "G-STBG",
-      "altitude": 0,
-      "speed": 0,
-      "onGround": true
-    },
-    {
-      "flight": null,
-      "registration": "TWR",
-      "altitude": 0,
-      "speed": 0,
-      "onGround": true
-    },
-    {
-      "flight": null,
-      "registration": "TWR",
-      "altitude": 0,
-      "speed": 0,
-      "onGround": true
-    },
-    {
-      "flight": "ASD",
-      "registration": "LDR5",
-      "altitude": 0,
-      "speed": 29,
-      "onGround": true
-    },
-    {
-      "flight": "BAW9E",
-      "registration": "G-VIIE",
-      "altitude": 0,
-      "speed": 3,
-      "onGround": true
-    }
-  ],
+  "nearby": [],
   "sources": [
     {
       "name": "Heathrow departures (T3)",
@@ -556,10 +499,6 @@
     {
       "name": "Heathrow pihub API",
       "url": "https://api-dp-prod.dp.heathrow.com/pihub/flights/departures?terminal=3"
-    },
-    {
-      "name": "adsb.lol near EGLL",
-      "url": "https://api.adsb.lol/v2/lat/51.47/lon/-0.45/dist/15"
     }
   ]
 }
