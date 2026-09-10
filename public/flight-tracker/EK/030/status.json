@@ -56,12 +56,12 @@
     "registration": "A6-EVS",
     "icao24": "89655f",
     "position": {
-      "lat": 24.211441,
-      "lon": 56.663615,
-      "altitude": 23025,
-      "heading": 126.05,
-      "speed": 458.8,
-      "seenAt": "2026-09-10T07:23:00.064Z",
+      "lat": 23.359222,
+      "lon": 57.890059,
+      "altitude": 30400,
+      "heading": 127.56,
+      "speed": 497,
+      "seenAt": "2026-09-10T07:33:27.654Z",
       "onGround": false,
       "source": "adsb.lol-reg"
     }
@@ -178,7 +178,7 @@
       "source": "Heathrow Airport",
       "airport": "LHR",
       "summary": "NATS technical issue resolved Tuesday evening. Flights operating today; knock-on disruption expected as airlines reposition aircraft and crew. Check with airline before travelling.",
-      "fetchedAt": "2026-09-10T07:22:54.467Z"
+      "fetchedAt": "2026-09-10T07:33:18.278Z"
     },
     {
       "title": "UK flights resume but airports warn of ongoing disruption",
@@ -186,7 +186,7 @@
       "source": "Reuters",
       "airport": "LHR",
       "summary": "British airports resumed flights early Wednesday after NATS resolved Tuesday's air-traffic failure; hubs warn recovery will take time with aircraft and crews out of position.",
-      "fetchedAt": "2026-09-10T07:22:54.467Z"
+      "fetchedAt": "2026-09-10T07:33:18.278Z"
     },
     {
       "title": "Hundreds more Heathrow flights cancelled as network recovers",
@@ -194,7 +194,7 @@
       "source": "Evening Standard",
       "airport": "LHR",
       "summary": "Wednesday knock-on cancellations continue at Heathrow after NATS resolved the Tuesday outage; passengers advised to check with their airline before travelling.",
-      "fetchedAt": "2026-09-10T07:22:54.467Z"
+      "fetchedAt": "2026-09-10T07:33:18.278Z"
     },
     {
       "title": "Dubai/Abu Dhabi delays after Heathrow outage",
@@ -202,10 +202,10 @@
       "source": "The National",
       "airport": "LHR",
       "summary": "EK030 from Heathrow listed among Emirates services running behind schedule amid knock-on UK disruption.",
-      "fetchedAt": "2026-09-10T07:22:54.467Z"
+      "fetchedAt": "2026-09-10T07:33:18.278Z"
     }
   ],
-  "updatedAt": "2026-09-10T07:23:05.797Z",
+  "updatedAt": "2026-09-10T07:33:29.708Z",
   "sources": [
     {
       "name": "FlightStats",

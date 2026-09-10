@@ -3,7 +3,7 @@
   "terminal": "3",
   "date": "2026-09-10",
   "timezone": "Europe/London",
-  "updatedAt": "2026-09-10T07:23:07.549Z",
+  "updatedAt": "2026-09-10T07:33:31.641Z",
   "departures": [
     {
       "flight": "EK030",
@@ -33,7 +33,7 @@
       "scheduled": "07:30",
       "estimated": null,
       "scheduledDate": "2026-09-10",
-      "status": "Last call",
+      "status": "Gate closed",
       "gate": "28",
       "terminal": "3",
       "delayMin": null
@@ -77,7 +77,7 @@
       "scheduled": "08:05",
       "estimated": null,
       "scheduledDate": "2026-09-10",
-      "status": "Last call",
+      "status": "Gate closed",
       "gate": "5a",
       "terminal": "3",
       "delayMin": null
@@ -88,7 +88,7 @@
       "scheduled": "08:05",
       "estimated": null,
       "scheduledDate": "2026-09-10",
-      "status": "Boarding",
+      "status": "Gate closed",
       "gate": "17",
       "terminal": "3",
       "delayMin": null
@@ -97,12 +97,12 @@
       "flight": "VS003",
       "destination": "New York · JFK",
       "scheduled": "08:20",
-      "estimated": null,
+      "estimated": "08:29",
       "scheduledDate": "2026-09-10",
-      "status": "Gate closed",
+      "status": "Taxied 08:29",
       "gate": "27",
       "terminal": "3",
-      "delayMin": null
+      "delayMin": 9
     },
     {
       "flight": "AA135",
@@ -116,6 +116,17 @@
       "delayMin": null
     },
     {
+      "flight": "BA416",
+      "destination": "Luxembourg · LUX",
+      "scheduled": "08:25",
+      "estimated": "08:25",
+      "scheduledDate": "2026-09-10",
+      "status": "Taxied 08:25",
+      "gate": "11",
+      "terminal": "3",
+      "delayMin": 0
+    },
+    {
       "flight": "BA888",
       "destination": "Hannover · HAJ",
       "scheduled": "08:25",
@@ -127,23 +138,12 @@
       "delayMin": null
     },
     {
-      "flight": "BA416",
-      "destination": "Luxembourg · LUX",
-      "scheduled": "08:25",
-      "estimated": null,
-      "scheduledDate": "2026-09-10",
-      "status": "Gate closed",
-      "gate": "11",
-      "terminal": "3",
-      "delayMin": null
-    },
-    {
       "flight": "AA051",
       "destination": "Dallas · DFW",
       "scheduled": "08:55",
       "estimated": null,
       "scheduledDate": "2026-09-10",
-      "status": "Boarding",
+      "status": "Last call",
       "gate": "19",
       "terminal": "3",
       "delayMin": null
@@ -154,7 +154,7 @@
       "scheduled": "09:05",
       "estimated": null,
       "scheduledDate": "2026-09-10",
-      "status": "Boarding",
+      "status": "Last call",
       "gate": "7",
       "terminal": "3",
       "delayMin": null
@@ -187,7 +187,7 @@
       "scheduled": "09:15",
       "estimated": null,
       "scheduledDate": "2026-09-10",
-      "status": "Gate open",
+      "status": "Boarding",
       "gate": "24",
       "terminal": "3",
       "delayMin": null
@@ -209,7 +209,7 @@
       "scheduled": "09:20",
       "estimated": null,
       "scheduledDate": "2026-09-10",
-      "status": "Gate open",
+      "status": "Boarding",
       "gate": "26",
       "terminal": "3",
       "delayMin": null
@@ -441,7 +441,7 @@
       "estimated": "11:15",
       "scheduledDate": "2026-09-10",
       "status": "On time 11:15",
-      "gate": null,
+      "gate": "22",
       "terminal": "3",
       "delayMin": 0
     },
@@ -624,199 +624,234 @@
   ],
   "nearby": [
     {
-      "flight": "BAW172",
-      "registration": "G-VIIH",
-      "altitude": 7350,
-      "speed": 255,
+      "flight": "BAW130",
+      "registration": "G-ZBJB",
+      "altitude": 3725,
+      "speed": 181,
       "onGround": false
     },
     {
-      "flight": "KLM49G",
-      "registration": "PH-EXN",
-      "altitude": 27125,
-      "speed": 389,
+      "flight": "BAW5B",
+      "registration": "G-EUYG",
+      "altitude": 5825,
+      "speed": 283,
       "onGround": false
     },
     {
-      "flight": "LOG28RW",
-      "registration": "G-LMRB",
-      "altitude": 5675,
+      "flight": "BAW5GU",
+      "registration": "G-EUPN",
+      "altitude": 6975,
       "speed": 238,
       "onGround": false
     },
     {
-      "flight": "MSR783",
-      "registration": "SU-GFO",
-      "altitude": 2600,
-      "speed": 159,
+      "flight": "BAW729",
+      "registration": "G-EUPP",
+      "altitude": 1225,
+      "speed": 151,
       "onGround": false
     },
     {
-      "flight": "RYR50AM",
-      "registration": "9H-QBZ",
-      "altitude": 22500,
-      "speed": 410,
+      "flight": "BAW785",
+      "registration": "G-DBCA",
+      "altitude": 7050,
+      "speed": 244,
       "onGround": false
     },
     {
-      "flight": "RYR69QT",
-      "registration": "EI-IJJ",
-      "altitude": 14950,
-      "speed": 404,
+      "flight": "BAW926C",
+      "registration": "G-EUYO",
+      "altitude": 2125,
+      "speed": 201,
       "onGround": false
     },
     {
-      "flight": "TAP13LH",
-      "registration": "CS-TJI",
-      "altitude": 6625,
-      "speed": 266,
+      "flight": "EIN38A",
+      "registration": "EI-LRB",
+      "altitude": 11550,
+      "speed": 280,
       "onGround": false
     },
     {
-      "flight": "UAL958",
-      "registration": "N658UA",
-      "altitude": 2950,
-      "speed": 240,
+      "flight": "EJU62GX",
+      "registration": "OE-LVK",
+      "altitude": 15350,
+      "speed": 365,
+      "onGround": false
+    },
+    {
+      "flight": "EJU94GP",
+      "registration": "OE-LQU",
+      "altitude": 36000,
+      "speed": 435,
+      "onGround": false
+    },
+    {
+      "flight": "MOG41",
+      "registration": "G-OFLX",
+      "altitude": 2875,
+      "speed": 199,
+      "onGround": false
+    },
+    {
+      "flight": "RAM809P",
+      "registration": "CN-ROY",
+      "altitude": 20975,
+      "speed": 399,
+      "onGround": false
+    },
+    {
+      "flight": "RYR10NM",
+      "registration": "9H-LMH",
+      "altitude": 27000,
+      "speed": 412,
+      "onGround": false
+    },
+    {
+      "flight": "VIR104L",
+      "registration": "G-VJAM",
+      "altitude": 2350,
+      "speed": 163,
+      "onGround": false
+    },
+    {
+      "flight": "VIR198S",
+      "registration": "G-VPIE",
+      "altitude": 5250,
+      "speed": 207,
+      "onGround": false
+    },
+    {
+      "flight": "VLG6650",
+      "registration": "EC-OJG",
+      "altitude": 8000,
+      "speed": 258,
       "onGround": false
     },
     {
       "flight": null,
+      "registration": "G-NEOW",
+      "altitude": 0,
+      "speed": 6,
+      "onGround": true
+    },
+    {
+      "flight": null,
+      "registration": "TWR",
+      "altitude": 0,
+      "speed": 0,
+      "onGround": true
+    },
+    {
+      "flight": null,
+      "registration": "TWR",
+      "altitude": 0,
+      "speed": 0,
+      "onGround": true
+    },
+    {
+      "flight": "@@@@@@@@",
+      "registration": "EI-NSG",
+      "altitude": 0,
+      "speed": 0,
+      "onGround": true
+    },
+    {
+      "flight": "BAW172",
+      "registration": "G-VIIH",
+      "altitude": 0,
+      "speed": 9,
+      "onGround": true
+    },
+    {
+      "flight": "BAW302",
+      "registration": "G-EUYC",
+      "altitude": 0,
+      "speed": 18,
+      "onGround": true
+    },
+    {
+      "flight": "BAW520R",
+      "registration": "G-TTSB",
+      "altitude": 0,
+      "speed": 3,
+      "onGround": true
+    },
+    {
+      "flight": "BAW548",
+      "registration": "G-EUPR",
+      "altitude": 0,
+      "speed": 5,
+      "onGround": true
+    },
+    {
+      "flight": "BAW592",
+      "registration": "G-EUUE",
+      "altitude": 0,
+      "speed": 85,
+      "onGround": true
+    },
+    {
+      "flight": "BAW598D",
+      "registration": "G-TTNX",
+      "altitude": 0,
+      "speed": 13,
+      "onGround": true
+    },
+    {
+      "flight": "BAW836",
       "registration": "G-EUYJ",
       "altitude": 0,
       "speed": 0,
       "onGround": true
     },
     {
-      "flight": null,
-      "registration": "G-TTSB",
-      "altitude": 0,
-      "speed": 14,
-      "onGround": true
-    },
-    {
-      "flight": null,
-      "registration": "G-NEOW",
-      "altitude": 0,
-      "speed": 5,
-      "onGround": true
-    },
-    {
-      "flight": null,
-      "registration": "TWR",
+      "flight": "DFC65L",
+      "registration": "OK-HAR",
       "altitude": 0,
       "speed": 0,
-      "onGround": true
-    },
-    {
-      "flight": null,
-      "registration": "TWR",
-      "altitude": 0,
-      "speed": 0,
-      "onGround": true
-    },
-    {
-      "flight": "AAL38",
-      "registration": "N727AN",
-      "altitude": 0,
-      "speed": 50,
-      "onGround": true
-    },
-    {
-      "flight": "BAW248",
-      "registration": "G-YMMK",
-      "altitude": 0,
-      "speed": 0,
-      "onGround": true
-    },
-    {
-      "flight": "BAW315",
-      "registration": "G-EUYK",
-      "altitude": 0,
-      "speed": 6,
-      "onGround": true
-    },
-    {
-      "flight": "BAW35LF",
-      "registration": "G-EUPZ",
-      "altitude": 0,
-      "speed": 0,
-      "onGround": true
-    },
-    {
-      "flight": "BAW5B",
-      "registration": "G-EUYG",
-      "altitude": 0,
-      "speed": 15,
-      "onGround": true
-    },
-    {
-      "flight": "BAW744",
-      "registration": "G-EUUD",
-      "altitude": 0,
-      "speed": 124,
-      "onGround": true
-    },
-    {
-      "flight": "BAW926C",
-      "registration": "G-EUYO",
-      "altitude": 0,
-      "speed": 12,
       "onGround": true
     },
     {
       "flight": "DLH6CH",
       "registration": "D-AINX",
       "altitude": 0,
-      "speed": 15,
+      "speed": 0,
       "onGround": true
     },
     {
-      "flight": "EWG6YD",
-      "registration": "D-AENB",
+      "flight": "LOG28RW",
+      "registration": "G-LMRB",
       "altitude": 0,
       "speed": 3,
       "onGround": true
     },
     {
-      "flight": "G-ZBKB",
-      "registration": "G-ZBKB",
+      "flight": "MSR783",
+      "registration": "SU-GFO",
       "altitude": 0,
-      "speed": 2,
+      "speed": 7,
       "onGround": true
     },
     {
-      "flight": "G-ZBLA",
-      "registration": "G-ZBLA",
-      "altitude": 0,
-      "speed": 0,
-      "onGround": true
-    },
-    {
-      "flight": "G-ZBLE",
-      "registration": "G-ZBLE",
+      "flight": "N844MC",
+      "registration": "N844MC",
       "altitude": 0,
       "speed": 6,
       "onGround": true
     },
     {
-      "flight": "GXWBS",
-      "registration": "G-XWBS",
+      "flight": "QTR63A",
+      "registration": "A7-APH",
       "altitude": 0,
       "speed": 0,
       "onGround": true
     },
     {
-      "flight": "SHT7B",
-      "registration": "G-TNEI",
+      "flight": "SAS84F",
+      "registration": "EI-SIU",
       "altitude": 0,
-      "speed": 8,
-      "onGround": true
-    },
-    {
-      "flight": "SQUID32",
-      "registration": null,
-      "altitude": 0,
-      "speed": 17,
+      "speed": 131,
       "onGround": true
     }
   ],
