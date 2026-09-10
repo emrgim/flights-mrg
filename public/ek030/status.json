@@ -36,8 +36,8 @@
     "gate": null
   },
   "tracking": {
-    "available": false,
-    "message": "Assigned hull A6-EVS — waiting for ADS-B / aircraft not yet transmitting."
+    "available": true,
+    "message": "Live ADS-B on hull A6-EVS (airframe position; may not yet be operating EK030)."
   },
   "codeshares": [
     {
@@ -55,7 +55,16 @@
     "duration": "7h 5m",
     "registration": "A6-EVS",
     "icao24": "89655f",
-    "position": null
+    "position": {
+      "lat": 25.193233,
+      "lon": 55.202671,
+      "altitude": 5725,
+      "heading": 120.09,
+      "speed": 291.2,
+      "seenAt": "2026-09-10T07:08:00.763Z",
+      "onGround": false,
+      "source": "adsb.lol-reg"
+    }
   },
   "otherDays": [
     {
@@ -169,7 +178,7 @@
       "source": "Heathrow Airport",
       "airport": "LHR",
       "summary": "NATS technical issue resolved Tuesday evening. Flights operating today; knock-on disruption expected as airlines reposition aircraft and crew. Check with airline before travelling.",
-      "fetchedAt": "2026-09-10T06:51:47.508Z"
+      "fetchedAt": "2026-09-10T07:07:49.320Z"
     },
     {
       "title": "UK flights resume but airports warn of ongoing disruption",
@@ -177,7 +186,7 @@
       "source": "Reuters",
       "airport": "LHR",
       "summary": "British airports resumed flights early Wednesday after NATS resolved Tuesday's air-traffic failure; hubs warn recovery will take time with aircraft and crews out of position.",
-      "fetchedAt": "2026-09-10T06:51:47.508Z"
+      "fetchedAt": "2026-09-10T07:07:49.320Z"
     },
     {
       "title": "Hundreds more Heathrow flights cancelled as network recovers",
@@ -185,7 +194,7 @@
       "source": "Evening Standard",
       "airport": "LHR",
       "summary": "Wednesday knock-on cancellations continue at Heathrow after NATS resolved the Tuesday outage; passengers advised to check with their airline before travelling.",
-      "fetchedAt": "2026-09-10T06:51:47.508Z"
+      "fetchedAt": "2026-09-10T07:07:49.320Z"
     },
     {
       "title": "Dubai/Abu Dhabi delays after Heathrow outage",
@@ -193,10 +202,10 @@
       "source": "The National",
       "airport": "LHR",
       "summary": "EK030 from Heathrow listed among Emirates services running behind schedule amid knock-on UK disruption.",
-      "fetchedAt": "2026-09-10T06:51:47.508Z"
+      "fetchedAt": "2026-09-10T07:07:49.320Z"
     }
   ],
-  "updatedAt": "2026-09-10T06:52:09.753Z",
+  "updatedAt": "2026-09-10T07:08:01.135Z",
   "sources": [
     {
       "name": "FlightStats",
@@ -213,6 +222,10 @@
     {
       "name": "Flightradar24",
       "url": "https://www.flightradar24.com/data/flights/ek30"
+    },
+    {
+      "name": "adsb.lol",
+      "url": "https://api.adsb.lol/"
     }
   ]
 }
