@@ -3,7 +3,7 @@
   "terminal": "3",
   "date": "2026-09-10",
   "timezone": "Europe/London",
-  "updatedAt": "2026-09-10T05:05:08.682Z",
+  "updatedAt": "2026-09-10T05:27:43.604Z",
   "departures": [
     {
       "flight": "EK030",
@@ -20,12 +20,12 @@
       "flight": "BA850",
       "destination": "Prague · PRG",
       "scheduled": "06:15",
-      "estimated": null,
+      "estimated": "06:16",
       "scheduledDate": "2026-09-10",
-      "status": "Gate closed",
+      "status": "Taxied 06:16",
       "gate": "23",
       "terminal": "3",
-      "delayMin": null
+      "delayMin": 1
     },
     {
       "flight": "BA492",
@@ -33,7 +33,7 @@
       "scheduled": "06:40",
       "estimated": null,
       "scheduledDate": "2026-09-10",
-      "status": "Boarding",
+      "status": "Gate closed",
       "gate": "5",
       "terminal": "3",
       "delayMin": null
@@ -44,7 +44,7 @@
       "scheduled": "06:50",
       "estimated": null,
       "scheduledDate": "2026-09-10",
-      "status": "Gate open",
+      "status": "Last call",
       "gate": "29",
       "terminal": "3",
       "delayMin": null
@@ -133,7 +133,7 @@
       "estimated": "08:20",
       "scheduledDate": "2026-09-10",
       "status": "On time 08:20",
-      "gate": null,
+      "gate": "27",
       "terminal": "3",
       "delayMin": 0
     },
@@ -199,7 +199,7 @@
       "estimated": "09:10",
       "scheduledDate": "2026-09-10",
       "status": "On time 09:10",
-      "gate": null,
+      "gate": "35",
       "terminal": "3",
       "delayMin": 0
     },
@@ -243,7 +243,7 @@
       "estimated": "09:20",
       "scheduledDate": "2026-09-10",
       "status": "On time 09:20",
-      "gate": null,
+      "gate": "26",
       "terminal": "3",
       "delayMin": 0
     },
@@ -532,105 +532,132 @@
       "gate": null,
       "terminal": "3",
       "delayMin": 0
+    },
+    {
+      "flight": "AA039",
+      "destination": "Miami · MIA",
+      "scheduled": "12:15",
+      "estimated": "13:15",
+      "scheduledDate": "2026-09-10",
+      "status": "Delayed 13:15",
+      "gate": null,
+      "terminal": "3",
+      "delayMin": 60
+    },
+    {
+      "flight": "AA055",
+      "destination": "Chicago · ORD",
+      "scheduled": "12:15",
+      "estimated": "12:15",
+      "scheduledDate": "2026-09-10",
+      "status": "On time 12:15",
+      "gate": null,
+      "terminal": "3",
+      "delayMin": 0
+    },
+    {
+      "flight": "CX252",
+      "destination": "Hong Kong · HKG",
+      "scheduled": "12:20",
+      "estimated": "12:20",
+      "scheduledDate": "2026-09-10",
+      "status": "On time 12:20",
+      "gate": null,
+      "terminal": "3",
+      "delayMin": 0
+    },
+    {
+      "flight": "VS358",
+      "destination": "Mumbai · BOM",
+      "scheduled": "12:25",
+      "estimated": "12:25",
+      "scheduledDate": "2026-09-10",
+      "status": "On time 12:25",
+      "gate": null,
+      "terminal": "3",
+      "delayMin": 0
+    },
+    {
+      "flight": "DL009",
+      "destination": "Minneapolis/Saint Paul · MSP",
+      "scheduled": "12:25",
+      "estimated": "12:25",
+      "scheduledDate": "2026-09-10",
+      "status": "On time 12:25",
+      "gate": null,
+      "terminal": "3",
+      "delayMin": 0
     }
   ],
   "nearby": [
     {
-      "flight": "ACA854",
-      "registration": "C-FITL",
-      "altitude": 8425,
-      "speed": 255,
-      "onGround": false
-    },
-    {
-      "flight": "BAW12",
-      "registration": "G-XLEJ",
-      "altitude": 1100,
-      "speed": 138,
-      "onGround": false
-    },
-    {
-      "flight": "BAW25GP",
-      "registration": "G-VIIS",
-      "altitude": 2975,
-      "speed": 191,
-      "onGround": false
-    },
-    {
-      "flight": "BAW40F",
-      "registration": "G-STBD",
-      "altitude": 10000,
+      "flight": "AAL730",
+      "registration": "N730AN",
+      "altitude": 8625,
       "speed": 264,
       "onGround": false
     },
     {
-      "flight": "BAW5CA",
-      "registration": "G-ZBLA",
-      "altitude": 1975,
-      "speed": 160,
+      "flight": "AFR53TN",
+      "registration": "F-HPNP",
+      "altitude": 175,
+      "speed": 145,
       "onGround": false
     },
     {
-      "flight": "BAW64",
-      "registration": "G-ZBKR",
-      "altitude": 225,
-      "speed": 152,
+      "flight": "AUA3PW",
+      "registration": "OE-LZR",
+      "altitude": 5875,
+      "speed": 282,
       "onGround": false
     },
     {
-      "flight": "JAL41",
-      "registration": "JA840J",
-      "altitude": 5900,
-      "speed": 251,
+      "flight": "BAW11J",
+      "registration": "G-VIIA",
+      "altitude": 7000,
+      "speed": 256,
       "onGround": false
     },
     {
-      "flight": "JBU1620",
-      "registration": "N4064J",
-      "altitude": 9000,
-      "speed": 264,
+      "flight": "BAW20R",
+      "registration": "G-ZBKC",
+      "altitude": 450,
+      "speed": 155,
       "onGround": false
     },
     {
-      "flight": "QTR74G",
-      "registration": "A7-ALZ",
-      "altitude": 5650,
-      "speed": 203,
+      "flight": "BAW765",
+      "registration": "G-EUYH",
+      "altitude": 3000,
+      "speed": 181,
       "onGround": false
     },
     {
-      "flight": "UAL929",
-      "registration": "N658UA",
-      "altitude": 6700,
-      "speed": 259,
+      "flight": "DAL16",
+      "registration": "N408DX",
+      "altitude": 4825,
+      "speed": 189,
       "onGround": false
     },
     {
-      "flight": "VIR10H",
-      "registration": "G-VPRD",
-      "altitude": 11000,
-      "speed": 273,
+      "flight": "EZY58RG",
+      "registration": "G-UZMD",
+      "altitude": 35000,
+      "speed": 473,
       "onGround": false
     },
     {
-      "flight": "VIR450",
-      "registration": "G-VBOW",
-      "altitude": 4075,
-      "speed": 186,
+      "flight": "TAP63GL",
+      "registration": "CS-TVI",
+      "altitude": 3850,
+      "speed": 250,
       "onGround": false
     },
     {
       "flight": null,
       "registration": "G-TNEC",
       "altitude": 0,
-      "speed": 0,
-      "onGround": true
-    },
-    {
-      "flight": null,
-      "registration": null,
-      "altitude": 0,
-      "speed": 8,
+      "speed": 6,
       "onGround": true
     },
     {
@@ -645,55 +672,90 @@
       "registration": "TWR",
       "altitude": 0,
       "speed": 0,
+      "onGround": true
+    },
+    {
+      "flight": "ACA866",
+      "registration": "C-GEGC",
+      "altitude": 0,
+      "speed": 1,
       "onGround": true
     },
     {
       "flight": "BAW216",
       "registration": "G-VIIW",
       "altitude": 0,
+      "speed": 5,
+      "onGround": true
+    },
+    {
+      "flight": "BAW40F",
+      "registration": "G-STBD",
+      "altitude": 0,
+      "speed": 0,
+      "onGround": true
+    },
+    {
+      "flight": "BAW4EA",
+      "registration": "G-ZBLE",
+      "altitude": 0,
+      "speed": 22,
+      "onGround": true
+    },
+    {
+      "flight": "BAW64",
+      "registration": "G-ZBKR",
+      "altitude": 0,
+      "speed": 0,
+      "onGround": true
+    },
+    {
+      "flight": "BAW850T",
+      "registration": "G-DBCF",
+      "altitude": 0,
+      "speed": 9,
+      "onGround": true
+    },
+    {
+      "flight": "EXS2UN",
+      "registration": "G-ZBLC",
+      "altitude": 0,
       "speed": 7,
-      "onGround": true
-    },
-    {
-      "flight": "BAW78",
-      "registration": "G-XWBE",
-      "altitude": 0,
-      "speed": 8,
-      "onGround": true
-    },
-    {
-      "flight": "G-VDIA",
-      "registration": "G-VDIA",
-      "altitude": 0,
-      "speed": 6,
       "onGround": true
     },
     {
       "flight": "G-ZBKB",
       "registration": "G-ZBKB",
       "altitude": 0,
-      "speed": 2,
+      "speed": 5,
       "onGround": true
     },
     {
-      "flight": "SWR5HA",
-      "registration": "YL-CSI",
+      "flight": "JBU1620",
+      "registration": "N4064J",
       "altitude": 0,
-      "speed": 2,
+      "speed": 0,
       "onGround": true
     },
     {
-      "flight": "UAL16",
-      "registration": "N667UA",
+      "flight": "SQUID47",
+      "registration": null,
       "altitude": 0,
-      "speed": 8,
+      "speed": 0,
       "onGround": true
     },
     {
-      "flight": "VIR4C",
-      "registration": "G-VRNB",
+      "flight": "VIR10H",
+      "registration": "G-VPRD",
       "altitude": 0,
-      "speed": 40,
+      "speed": 3,
+      "onGround": true
+    },
+    {
+      "flight": "VIR92MC",
+      "registration": "G-VRAY",
+      "altitude": 0,
+      "speed": 0,
       "onGround": true
     }
   ],
