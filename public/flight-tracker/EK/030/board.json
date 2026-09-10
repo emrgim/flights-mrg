@@ -3,7 +3,7 @@
   "terminal": "3",
   "date": "2026-09-10",
   "timezone": "Europe/London",
-  "updatedAt": "2026-09-10T04:39:09.246Z",
+  "updatedAt": "2026-09-10T04:57:07.343Z",
   "departures": [
     {
       "flight": "EK030",
@@ -22,7 +22,7 @@
       "scheduled": "06:15",
       "estimated": null,
       "scheduledDate": "2026-09-10",
-      "status": "Gate open",
+      "status": "Last call",
       "gate": "23",
       "terminal": "3",
       "delayMin": null
@@ -31,23 +31,23 @@
       "flight": "BA492",
       "destination": "Gibraltar · GIB",
       "scheduled": "06:40",
-      "estimated": "06:40",
+      "estimated": null,
       "scheduledDate": "2026-09-10",
-      "status": "On time 06:40",
+      "status": "Gate open",
       "gate": "5",
       "terminal": "3",
-      "delayMin": 0
+      "delayMin": null
     },
     {
       "flight": "BA348",
       "destination": "Marseille · MRS",
       "scheduled": "06:50",
-      "estimated": "06:50",
+      "estimated": null,
       "scheduledDate": "2026-09-10",
-      "status": "On time 06:50",
+      "status": "Gate open",
       "gate": "29",
       "terminal": "3",
-      "delayMin": 0
+      "delayMin": null
     },
     {
       "flight": "BA862",
@@ -488,9 +488,141 @@
       "gate": null,
       "terminal": "3",
       "delayMin": 0
+    },
+    {
+      "flight": "VS105",
+      "destination": "Seattle · SEA",
+      "scheduled": "11:40",
+      "estimated": "11:40",
+      "scheduledDate": "2026-09-10",
+      "status": "On time 11:40",
+      "gate": null,
+      "terminal": "3",
+      "delayMin": 0
+    },
+    {
+      "flight": "DL002",
+      "destination": "New York · JFK",
+      "scheduled": "11:45",
+      "estimated": "11:45",
+      "scheduledDate": "2026-09-10",
+      "status": "On time 11:45",
+      "gate": null,
+      "terminal": "3",
+      "delayMin": 0
+    },
+    {
+      "flight": "QF010",
+      "destination": "Perth · PER",
+      "scheduled": "11:55",
+      "estimated": "11:55",
+      "scheduledDate": "2026-09-10",
+      "status": "On time 11:55",
+      "gate": null,
+      "terminal": "3",
+      "delayMin": 0
     }
   ],
-  "nearby": [],
+  "nearby": [
+    {
+      "flight": "BAW216",
+      "registration": "G-VIIW",
+      "altitude": 4025,
+      "speed": 184,
+      "onGround": false
+    },
+    {
+      "flight": "BAW25GP",
+      "registration": "G-VIIS",
+      "altitude": 8575,
+      "speed": 225,
+      "onGround": false
+    },
+    {
+      "flight": "BAW5CA",
+      "registration": "G-ZBLA",
+      "altitude": 7000,
+      "speed": 225,
+      "onGround": false
+    },
+    {
+      "flight": "BAW64",
+      "registration": "G-ZBKR",
+      "altitude": 7525,
+      "speed": 224,
+      "onGround": false
+    },
+    {
+      "flight": "DAL30",
+      "registration": "N827MH",
+      "altitude": 8000,
+      "speed": 262,
+      "onGround": false
+    },
+    {
+      "flight": "JBU1620",
+      "registration": "N4064J",
+      "altitude": 10325,
+      "speed": 271,
+      "onGround": false
+    },
+    {
+      "flight": "UAL16",
+      "registration": "N667UA",
+      "altitude": 2125,
+      "speed": 176,
+      "onGround": false
+    },
+    {
+      "flight": "UAL929",
+      "registration": "N658UA",
+      "altitude": 10000,
+      "speed": 256,
+      "onGround": false
+    },
+    {
+      "flight": "VIR4C",
+      "registration": "G-VRNB",
+      "altitude": 4875,
+      "speed": 228,
+      "onGround": false
+    },
+    {
+      "flight": null,
+      "registration": "TWR",
+      "altitude": 0,
+      "speed": 0,
+      "onGround": true
+    },
+    {
+      "flight": null,
+      "registration": "TWR",
+      "altitude": 0,
+      "speed": 0,
+      "onGround": true
+    },
+    {
+      "flight": "G-VDIA",
+      "registration": "G-VDIA",
+      "altitude": 0,
+      "speed": 0,
+      "onGround": true
+    },
+    {
+      "flight": "SQUID19",
+      "registration": null,
+      "altitude": 0,
+      "speed": null,
+      "onGround": true
+    },
+    {
+      "flight": "VH-ZNG",
+      "registration": "VH-ZNG",
+      "altitude": 0,
+      "speed": 7,
+      "onGround": true
+    }
+  ],
   "sources": [
     {
       "name": "Heathrow departures (T3)",
@@ -499,6 +631,10 @@
     {
       "name": "Heathrow pihub API",
       "url": "https://api-dp-prod.dp.heathrow.com/pihub/flights/departures?terminal=3"
+    },
+    {
+      "name": "adsb.lol near EGLL",
+      "url": "https://api.adsb.lol/v2/lat/51.47/lon/-0.45/dist/15"
     }
   ]
 }
