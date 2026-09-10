@@ -713,23 +713,412 @@ async function buildLhrBoard() {
 }
 
 
+async function loadFlightStatsHtml() {
+  const urls = [
+    "https://www.flightstats.com/v2/flight-tracker/EK/030",
+    `https://www.flightstats.com/v2/flight-tracker/EK/30?year=${todayYmdInTz("Europe/London").slice(0, 4)}&month=${todayYmdInTz("Europe/London").slice(5, 7)}&date=${todayYmdInTz("Europe/London").slice(8, 10)}`,
+  ];
+  const errors = [];
+  for (const url of urls) {
+    try {
+      const html = await fetchText(url);
+      if (html.includes("__NEXT_DATA__")) return { html, url };
+      errors.push(`${url} → no __NEXT_DATA__`);
+    } catch (e) {
+      errors.push(e.message || String(e));
+    }
+  }
+  const localCandidates = [
+    join(root, "flightstats-ek030.html"),
+    join(root, "flightstats.html"),
+    "/tmp/flightstats-ek030.html",
+  ];
+  for (const p of localCandidates) {
+    if (!existsSync(p)) continue;
+    const html = readFileSync(p, "utf8");
+    if (html.includes("__NEXT_DATA__")) {
+      console.warn("FlightStats network blocked; using local HTML", p);
+      return { html, url: "https://www.flightstats.com/v2/flight-tracker/EK/030" };
+    }
+  }
+  throw new Error(`FlightStats unavailable: ${errors.join("; ")}`);
+}
+
+function hhmmFromUnixInTz(ts, tz) {
+  if (!ts) return null;
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: tz,
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(new Date(Number(ts) * 1000));
+}
+
+async function fetchHeathrowEk030() {
+  const url = "https://api-dp-prod.dp.heathrow.com/pihub/flights/departures?terminal=3";
+  const res = await fetch(url, {
+    headers: {
+      "user-agent": UA,
+      accept: "application/json",
+      origin: "https://www.heathrow.com",
+      referer: "https://www.heathrow.com/departures",
+    },
+    signal: AbortSignal.timeout(25000),
+  });
+  if (!res.ok) throw new Error(`heathrow departures → ${res.status}`);
+  const data = await res.json();
+  if (!Array.isArray(data)) throw new Error("heathrow departures: unexpected payload");
+  return data.find((x) => x?.flightService?.iataFlightIdentifier === "EK030") || null;
+}
+
+async function fetchFr24Today() {
+  const target = todayYmdInTz("Europe/London");
+  const data = await fetchJson(
+    "https://api.flightradar24.com/common/v1/flight/list.json?query=ek30&fetchBy=flight&page=1&limit=100"
+  );
+  const rows = data?.result?.response?.data || [];
+  return (
+    rows.find((f) => {
+      const dep = f?.time?.scheduled?.departure;
+      const day = londonYmdFromUnix(dep) || utcYmdFromUnix(dep);
+      return day === target;
+    }) || null
+  );
+}
+
+async function buildPayloadFromFallbacks(prev) {
+  const sources = [];
+  const news = [];
+  let caution = prev?.caution || null;
+  const newsFetchedAt = new Date().toISOString();
+  const flightDate = todayYmdInTz("Europe/London");
+
+  let heathrow = null;
+  try {
+    heathrow = await fetchHeathrowEk030();
+    sources.push({ name: "Heathrow", url: "https://www.heathrow.com/departures" });
+  } catch (e) {
+    console.warn("Heathrow fallback failed:", e.message || e);
+  }
+
+  let fr24 = null;
+  try {
+    fr24 = await fetchFr24Today();
+    sources.push({ name: "Flightradar24", url: "https://www.flightradar24.com/data/flights/ek30" });
+  } catch (e) {
+    console.warn("FR24 fallback failed:", e.message || e);
+  }
+
+  if (!heathrow && !fr24 && !prev) {
+    throw new Error("No FlightStats and no Heathrow/FR24/previous status for fallback");
+  }
+
+  // News / caution (same scrapes as main path)
+  try {
+    const h = await fetchText("https://www.heathrow.com/departures");
+    if (/NATS|knock-on disruption|technical issue|operations are recovering|operating today/i.test(h)) {
+      const resolved = /resolved|recovering|operating today/i.test(h);
+      caution = resolved
+        ? "Heathrow operations recovering after Tuesday's NATS issue (resolved); flights operating today with knock-on cancellations/delays possible. Confirm with Emirates before travelling."
+        : "Heathrow disruption from NATS ATC issue; knock-on delays possible. Confirm with Emirates before going to the airport.";
+      news.push({
+        title: "Heathrow operations recovering — flights operating",
+        url: "https://www.heathrow.com/departures",
+        source: "Heathrow Airport",
+        airport: "LHR",
+        summary:
+          "NATS technical issue resolved Tuesday evening. Flights operating today; knock-on disruption expected as airlines reposition aircraft and crew. Check with airline before travelling.",
+        fetchedAt: newsFetchedAt,
+      });
+      news.push({
+        title: "UK flights resume but airports warn of ongoing disruption",
+        url: "https://www.reuters.com/world/uk/uk-flights-resume-airports-warn-ongoing-disruption-air-traffic-outage-2026-09-09/",
+        source: "Reuters",
+        airport: "LHR",
+        summary:
+          "British airports resumed flights early Wednesday after NATS resolved Tuesday's air-traffic failure; hubs warn recovery will take time with aircraft and crews out of position.",
+        fetchedAt: newsFetchedAt,
+      });
+      news.push({
+        title: "Hundreds more Heathrow flights cancelled as network recovers",
+        url: "https://www.standard.co.uk/news/london/heathrow-flights-cancelled-latest-wednesday-gatwick-nats-b1295995.html",
+        source: "Evening Standard",
+        airport: "LHR",
+        summary:
+          "Wednesday knock-on cancellations continue at Heathrow after NATS resolved the Tuesday outage; passengers advised to check with their airline before travelling.",
+        fetchedAt: newsFetchedAt,
+      });
+    }
+  } catch (e) {
+    console.warn("Heathrow departures scrape failed:", e.message || e);
+  }
+  try {
+    const nUrl =
+      "https://www.thenationalnews.com/travel/2026/09/09/dubai-abu-dhabi-flight-delays-cancellations/";
+    const n = await fetchText(nUrl);
+    sources.push({ name: "The National", url: nUrl });
+    if (/EK030/i.test(n)) {
+      news.push({
+        title: "Dubai/Abu Dhabi delays after Heathrow outage",
+        url: nUrl,
+        source: "The National",
+        airport: "LHR",
+        summary:
+          "EK030 from Heathrow listed among Emirates services running behind schedule amid knock-on UK disruption.",
+        fetchedAt: newsFetchedAt,
+      });
+      caution =
+        (caution ? caution + " " : "") +
+        "Press lists EK030 among delayed services — treat on-time cautiously.";
+    }
+  } catch (e) {
+    console.warn("The National scrape failed:", e.message || e);
+  }
+
+  const origin = heathrow?.flightService?.aircraftMovement?.route?.portsOfCall?.find(
+    (p) => p.portOfCallType === "ORIGIN"
+  );
+  const dest = heathrow?.flightService?.aircraftMovement?.route?.portsOfCall?.find(
+    (p) => p.portOfCallType === "DESTINATION"
+  );
+  const originStatus = heathrow?.flightService?.aircraftMovement?.aircraftMovementStatus?.find(
+    (s) => s.name === "OriginStatus"
+  );
+  const gate =
+    origin?.airportFacility?.terminalFacility?.gateFacility?.gateIdentifier ||
+    origin?.airportFacility?.terminalFacility?.gateFacility?.identifier ||
+    null;
+  const terminal =
+    origin?.airportFacility?.terminalFacility?.code || prev?.departure?.terminal || "3";
+  const arrTerminal =
+    dest?.airportFacility?.terminalFacility?.code || prev?.arrival?.terminal || null;
+  const arrGate =
+    dest?.airportFacility?.terminalFacility?.gateFacility?.gateIdentifier ||
+    dest?.airportFacility?.terminalFacility?.gateFacility?.identifier ||
+    null;
+
+  const depScheduled =
+    (origin?.operatingTimes?.scheduled?.local || "").slice(11, 16) ||
+    hhmmFromUnixInTz(fr24?.time?.scheduled?.departure, "Europe/London") ||
+    prev?.departure?.scheduled ||
+    null;
+  const depEstimated =
+    (origin?.operatingTimes?.estimated?.local || origin?.operatingTimes?.actual?.local || "").slice(11, 16) ||
+    hhmmFromUnixInTz(fr24?.time?.estimated?.departure || fr24?.time?.scheduled?.departure, "Europe/London") ||
+    prev?.departure?.estimated ||
+    depScheduled;
+  const depActual =
+    (origin?.operatingTimes?.actual?.local || "").slice(11, 16) ||
+    hhmmFromUnixInTz(fr24?.time?.real?.departure, "Europe/London") ||
+    null;
+
+  const arrScheduled =
+    (dest?.operatingTimes?.scheduled?.local || "").slice(11, 16) ||
+    hhmmFromUnixInTz(fr24?.time?.scheduled?.arrival, "Asia/Dubai") ||
+    prev?.arrival?.scheduled ||
+    null;
+  const arrEstimated =
+    (dest?.operatingTimes?.estimated?.local || dest?.operatingTimes?.actual?.local || "").slice(11, 16) ||
+    hhmmFromUnixInTz(fr24?.time?.estimated?.arrival || fr24?.time?.other?.eta, "Asia/Dubai") ||
+    prev?.arrival?.estimated ||
+    arrScheduled;
+  const arrActual =
+    (dest?.operatingTimes?.actual?.local || "").slice(11, 16) ||
+    hhmmFromUnixInTz(fr24?.time?.real?.arrival, "Asia/Dubai") ||
+    null;
+
+  let status = prev?.status || "Scheduled";
+  let statusDetail = prev?.statusDetail || "";
+  let statusCode = prev?.statusCode || "S";
+  const msg = originStatus?.message || fr24?.status?.text || "";
+  if (/cancel/i.test(msg)) {
+    status = "Cancelled";
+    statusDetail = msg;
+    statusCode = "C";
+  } else if (/landed|arrived/i.test(msg) || fr24?.status?.generic?.status?.text === "arrived") {
+    status = "Arrived";
+    statusDetail = msg || "Landed";
+    statusCode = "L";
+  } else if (/departed|airborne|en ?route/i.test(msg) || fr24?.status?.live) {
+    status = "En Route";
+    statusDetail = msg || fr24?.status?.text || "Departed";
+    statusCode = "A";
+  } else if (/delay/i.test(msg)) {
+    status = "Delayed";
+    statusDetail = msg;
+    statusCode = "D";
+  } else if (/on time|estimated dep|check-in/i.test(msg)) {
+    status = "Scheduled";
+    statusDetail = /on time/i.test(msg) ? "On time" : msg || "On time";
+    statusCode = "S";
+  } else if (msg) {
+    statusDetail = msg;
+  }
+
+  const acTransport = heathrow?.flightService?.aircraftTransport || {};
+  const baseAc = {
+    code: acTransport.iataTypeCode || fr24?.aircraft?.model?.code || prev?.aircraft?.code || null,
+    description:
+      acTransport.description ||
+      prev?.aircraft?.description ||
+      null,
+    duration: prev?.aircraft?.duration || null,
+  };
+  if (heathrow?.flightService?.aircraftMovement?.scheduledFlightDurationMinutes) {
+    const m = heathrow.flightService.aircraftMovement.scheduledFlightDurationMinutes;
+    baseAc.duration = `${Math.floor(m / 60)}h ${m % 60}m`;
+  }
+  const aircraft = await enrichAircraft(baseAc, flightDate);
+  if (aircraft.position?.source?.includes("adsb.lol")) {
+    sources.push({ name: "adsb.lol", url: "https://api.adsb.lol/" });
+  } else if (aircraft.position?.source?.includes("airplanes.live")) {
+    sources.push({ name: "airplanes.live", url: "https://api.airplanes.live/" });
+  } else if (aircraft.position?.source === "opensky") {
+    sources.push({ name: "OpenSky", url: "https://opensky-network.org/" });
+  }
+  sources.push({
+    name: "FlightStats",
+    url: "https://www.flightstats.com/v2/flight-tracker/EK/030",
+    note: "blocked (403); payload rebuilt from Heathrow/FR24",
+  });
+
+  const trackingAvailable = Boolean(aircraft.position);
+  let trackingMessage = prev?.tracking?.message || "Positional tracking not available yet.";
+  if (aircraft.position) {
+    trackingMessage = aircraft.registration
+      ? `Live ADS-B on hull ${aircraft.registration} (airframe position; may not yet be operating EK030).`
+      : "Live ADS-B position available for assigned airframe.";
+  } else if (aircraft.registration) {
+    trackingMessage = `Assigned hull ${aircraft.registration} — waiting for ADS-B / aircraft not yet transmitting.`;
+  }
+
+  const codeshares = (heathrow?.flightService?.codeShareSummary || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((code) => {
+      const m = code.match(/^([A-Z0-9]{2})(\d+)$/i);
+      if (!m) return { airline: code, flight: code };
+      const map = { FI: "Icelandair", QF: "Qantas" };
+      return { airline: map[m[1].toUpperCase()] || m[1], flight: `${m[1].toUpperCase()} ${m[2]}` };
+    });
+
+  return {
+    airlineCode: "EK",
+    flightNumber: "030",
+    airlineName: "Emirates",
+    flightId: prev?.flightId || null,
+    status,
+    statusDetail,
+    statusCode,
+    date: flightDate,
+    departure: {
+      city: "London",
+      region: prev?.departure?.region || "EN, GB",
+      airportName: "London Heathrow Airport",
+      airport: "LHR",
+      dateLabel: fmtDateLabel(`${flightDate}T00:00:00`) || prev?.departure?.dateLabel,
+      scheduled: depScheduled,
+      estimated: depEstimated,
+      actual: depActual,
+      timezoneLabel: "BST",
+      timezone: "Europe/London",
+      terminal,
+      gate: gate || null,
+    },
+    arrival: {
+      city: "Dubai",
+      region: "AE",
+      airportName: "Dubai International Airport",
+      airport: "DXB",
+      dateLabel:
+        fmtDateLabel((dest?.operatingTimes?.scheduled?.local || "").slice(0, 10) + "T00:00:00") ||
+        prev?.arrival?.dateLabel ||
+        null,
+      scheduled: arrScheduled,
+      estimated: arrEstimated,
+      actual: arrActual,
+      timezoneLabel: "+04",
+      timezone: "Asia/Dubai",
+      terminal: arrTerminal,
+      gate: arrGate,
+    },
+    tracking: { available: trackingAvailable, message: trackingMessage },
+    codeshares: codeshares.length ? codeshares : prev?.codeshares || [],
+    aircraft,
+    otherDays: prev?.otherDays || [],
+    caution,
+    news,
+    updatedAt: new Date().toISOString(),
+    sources,
+    fallback: true,
+  };
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const news = [];
   const sources = [];
   let caution = null;
 
-  const html = await fetchText("https://www.flightstats.com/v2/flight-tracker/EK/030");
-  sources.push({ name: "FlightStats", url: "https://www.flightstats.com/v2/flight-tracker/EK/030" });
-  const next = parseNextData(html);
-  const flight = next?.props?.initialState?.flightTracker?.flight;
-  if (!flight) throw new Error("No flight object in FlightStats payload");
+  let flight;
+  let otherDays = [];
+  let usedFallback = false;
+  try {
+    const loaded = await loadFlightStatsHtml();
+    sources.push({ name: "FlightStats", url: loaded.url });
+    const next = parseNextData(loaded.html);
+    flight = next?.props?.initialState?.flightTracker?.flight;
+    otherDays = next?.props?.initialState?.flightTracker?.otherDays || [];
+    if (!flight) throw new Error("No flight object in FlightStats payload");
+  } catch (e) {
+    console.warn("FlightStats path failed:", e.message || e);
+    let prev = null;
+    try {
+      if (existsSync(out)) prev = JSON.parse(readFileSync(out, "utf8"));
+    } catch {}
+    const payload = await buildPayloadFromFallbacks(prev);
+    usedFallback = true;
+    await writeFile(out, JSON.stringify(payload, null, 2));
+    await mkdir(join(root, "public/ek030"), { recursive: true });
+    await writeFile(join(root, "public/ek030/status.json"), JSON.stringify(payload, null, 2));
+    const positionPayload = {
+      registration: payload.aircraft?.registration || null,
+      icao24: payload.aircraft?.icao24 || null,
+      position: payload.aircraft?.position || null,
+      updatedAt: payload.updatedAt,
+    };
+    await writeFile(join(outDir, "position.json"), JSON.stringify(positionPayload, null, 2));
+    try {
+      const board = await buildLhrBoard();
+      await writeFile(join(outDir, "board.json"), JSON.stringify(board, null, 2));
+      console.log("board", board.departures.length, "departures,", board.nearby.length, "nearby");
+    } catch (be) {
+      console.warn("LHR board write failed:", be.message || be);
+    }
+    console.log(
+      "OK-FALLBACK",
+      payload.status,
+      payload.statusDetail,
+      payload.departure.scheduled,
+      "→",
+      payload.arrival.scheduled,
+      "|",
+      payload.aircraft?.registration || "no-reg",
+      payload.aircraft?.icao24 || "no-hex",
+      payload.aircraft?.position ? "pos" : "no-pos",
+      "| gate",
+      payload.departure.gate || "TBA",
+      "/",
+      payload.arrival.gate || "TBA"
+    );
+    return;
+  }
 
   const dep = flight.departureAirport || {};
   const arr = flight.arrivalAirport || {};
   const st = flight.status || {};
   const note = flight.flightNote || {};
-  const otherDays = next?.props?.initialState?.flightTracker?.otherDays || [];
 
   const newsFetchedAt = new Date().toISOString();
   let heathrowDisruption = false;
